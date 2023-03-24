@@ -1,0 +1,18 @@
+.DS_Store
+node_modules
+/build
+/package
+.env
+.env.*
+.expo
+asstes
+!.env.example
+app.json
+tsconfig.json
+babel.config.js
+
+# Ignore files for PNPM, NPM and YARN
+package.json
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
