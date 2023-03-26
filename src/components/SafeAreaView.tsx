@@ -5,7 +5,7 @@ import {
     SafeAreaView as BaseSafeAreaView,
 } from 'react-native';
 import React, { PropsWithChildren } from 'react';
-import { colors } from '../colors';
+import { colors } from '../theme';
 
 const SafeAreaView: React.FC<PropsWithChildren> = ({ children }) => {
     return (

@@ -1,13 +1,13 @@
 import {
-    StyleSheet,
-    ScrollView,
-    Pressable,
-    Text,
-    View,
     Dimensions,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    View,
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { colors, spacing } from '../colors';
+import { colors, spacing } from '../theme';
+import { TodoItem, Text } from '../components';
 
 const windowDimensions = Dimensions.get('window');
 const footerMidSectionWidth = 54;
@@ -28,7 +28,8 @@ export default function HomePage() {
                 </Svg>
             </View>
             <ScrollView style={styles.main}>
-                <Text>Main</Text>
+                <TodoItem label="Testing" />
+                <TodoItem label="Wash the dishes" />
             </ScrollView>
             <View style={styles.footer}>
                 <View
@@ -96,6 +97,7 @@ const styles = StyleSheet.create({
     },
     main: {
         flex: 1,
+        paddingLeft: spacing(5),
     },
     footer: {
         flexDirection: 'row',
