@@ -15,6 +15,7 @@ const Checkbox: React.FC<CheckboxProps> = (props) => {
         <View style={styles.root}>
             <Svg
                 stroke={colors.icon}
+                fill="transparent"
                 width="24"
                 height="24"
                 viewBox="0 0 24 24"

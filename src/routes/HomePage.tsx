@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import {
     Dimensions,
     Pressable,
@@ -6,8 +7,8 @@ import {
     View,
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
+import { Text, TodoItem } from '../components';
 import { colors, spacing } from '../theme';
-import { TodoItem, Text } from '../components';
 
 const windowDimensions = Dimensions.get('window');
 const footerMidSectionWidth = 54;
@@ -28,8 +29,12 @@ export default function HomePage() {
                 </Svg>
             </View>
             <ScrollView style={styles.main}>
-                <TodoItem label="Testing" />
-                <TodoItem label="Wash the dishes" />
+                <TodoItem label="No Date" />
+                <TodoItem label="Yesterday" dueDate={testDates.yesterday} />
+                <TodoItem label="Today" dueDate={testDates.today} />
+                <TodoItem label="Tomorrow" dueDate={testDates.tomorrow} />
+                <TodoItem label="Next Week" dueDate={testDates.futureClose} />
+                <TodoItem label="Next Year" dueDate={testDates.nextYear} />
             </ScrollView>
             <View style={styles.footer}>
                 <View
@@ -127,3 +132,12 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
 });
+
+const testDates = {
+    pastWeek: dayjs().subtract(1, 'week').unix(),
+    yesterday: dayjs().subtract(1, 'day').unix(),
+    today: dayjs().unix(),
+    tomorrow: dayjs().add(1, 'day').unix(),
+    futureClose: dayjs().add(2, 'day').unix(),
+    nextYear: dayjs().add(1, 'week').add(1, 'year').unix(),
+};

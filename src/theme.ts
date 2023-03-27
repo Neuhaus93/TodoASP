@@ -8,7 +8,7 @@ export const colors = {
         past: '#D1453B',
         today: '#058527',
         tomorrow: '#EB8909',
-        nextWeek: '#692FC2',
+        futureClose: '#692FC2',
         future: '#808080',
     },
 } as const;
