@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { useState } from 'react';
 import {
     Dimensions,
     Pressable,
@@ -9,6 +10,7 @@ import {
 import Svg, { Circle, Path } from 'react-native-svg';
 import { Text, TodoItem } from '../components';
 import { colors, spacing } from '../theme';
+import CreateTaskModal from './CreateTaskModal';
 
 const windowDimensions = Dimensions.get('window');
 const footerMidSectionWidth = 54;
@@ -18,6 +20,12 @@ const footerHeight = footerMidSectionWidth;
 const addBtnRadius = footerMidSectionWidth / 2 - 2;
 
 export default function HomePage() {
+    const [createModalOpen, setCreateModalOpen] = useState(false);
+
+    const handlePlusButtonPress = () => {
+        setCreateModalOpen(true);
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -58,6 +66,7 @@ export default function HomePage() {
                         <Path d="M -0.1 0.05 L 0 3 L 3 3 L 3.1 0.05 C 3 2 0 2 -0.1 0.05" />
                     </Svg>
                     <Pressable
+                        onPress={handlePlusButtonPress}
                         style={{
                             position: 'absolute',
                             left: footerMidSectionWidth / 2 - addBtnRadius,
@@ -83,6 +92,11 @@ export default function HomePage() {
                     ]}
                 />
             </View>
+
+            <CreateTaskModal
+                visible={createModalOpen}
+                onClose={() => setCreateModalOpen(false)}
+            />
         </View>
     );
 }

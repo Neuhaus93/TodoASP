@@ -4,6 +4,7 @@ export const colors = {
     text: '#202020',
     background: '#FFFFFF',
     menus: '#3D3D3D',
+    disabled: '#E5E5E5',
     date: {
         past: '#D1453B',
         today: '#058527',
