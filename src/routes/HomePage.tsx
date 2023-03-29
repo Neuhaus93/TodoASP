@@ -8,7 +8,8 @@ import {
     View,
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { Text, TodoItem } from '../components';
+import { useTasks } from '../api/useTasks';
+import { TaskItem, Text } from '../components';
 import { colors, spacing } from '../theme';
 import CreateTaskModal from './CreateTaskModal';
 
@@ -21,9 +22,20 @@ const addBtnRadius = footerMidSectionWidth / 2 - 2;
 
 export default function HomePage() {
     const [createModalOpen, setCreateModalOpen] = useState(false);
+    const [createTaskModalKey, setCreateTaskModalKey] =
+        useState('createTaskModal-0');
+
+    const { data: tasks } = useTasks();
 
     const handlePlusButtonPress = () => {
         setCreateModalOpen(true);
+    };
+
+    const handleCloseCreateTaskModal = () => {
+        const keyIndex = Number(createTaskModalKey.split('-')[1]);
+
+        setCreateTaskModalKey(`createTaskModal-${keyIndex + 1}`);
+        setCreateModalOpen(false);
     };
 
     return (
@@ -37,12 +49,17 @@ export default function HomePage() {
                 </Svg>
             </View>
             <ScrollView style={styles.main}>
-                <TodoItem label="No Date" />
-                <TodoItem label="Yesterday" dueDate={testDates.yesterday} />
-                <TodoItem label="Today" dueDate={testDates.today} />
-                <TodoItem label="Tomorrow" dueDate={testDates.tomorrow} />
-                <TodoItem label="Next Week" dueDate={testDates.futureClose} />
-                <TodoItem label="Next Year" dueDate={testDates.nextYear} />
+                {Array.isArray(tasks) && (
+                    <>
+                        {tasks.map((task) => (
+                            <TaskItem
+                                key={task.id}
+                                label={task.name}
+                                timestamp={task.due_date}
+                            />
+                        ))}
+                    </>
+                )}
             </ScrollView>
             <View style={styles.footer}>
                 <View
@@ -94,8 +111,9 @@ export default function HomePage() {
             </View>
 
             <CreateTaskModal
+                key={createTaskModalKey}
                 visible={createModalOpen}
-                onClose={() => setCreateModalOpen(false)}
+                onClose={handleCloseCreateTaskModal}
             />
         </View>
     );

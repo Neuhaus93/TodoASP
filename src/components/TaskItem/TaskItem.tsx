@@ -1,36 +1,41 @@
 import { StyleSheet, View } from 'react-native';
 import { spacing } from '../../theme';
-import { formatUnixTimestamp } from '../../utils/dateTime';
+import { getTimestampInfo } from '../../utils/dateTime';
 import { Checkbox, CheckboxProps } from '../Checkbox';
 import { Divider } from '../Divider';
 import { CalendarIcon } from '../Icons';
 import { Text } from '../Text';
 
-export type TodoItemProps = {
+export type TaskItemProps = {
     /**
      * Todo due date, in Unix timestamp
      */
-    dueDate?: number;
+    timestamp: number | null;
 } & CheckboxProps;
 
-const TodoItem: React.FC<TodoItemProps> = (props) => {
-    const { dueDate, ...checkboxProps } = props;
+const TaskItem: React.FC<TaskItemProps> = (props) => {
+    const { timestamp, ...checkboxProps } = props;
 
-    const date = formatUnixTimestamp(dueDate);
+    const timestampInfo = getTimestampInfo(timestamp);
 
     return (
         <View>
             <View style={styles.checkboxContainer}>
                 <Checkbox {...checkboxProps} />
-                {!!date && (
+                {!!timestampInfo && (
                     <View style={styles.dateContainer}>
                         <CalendarIcon
-                            fill={date.color}
+                            fill={timestampInfo.color}
                             width="17"
                             height="17"
                         />
-                        <Text style={[styles.dateLabel, { color: date.color }]}>
-                            {date.label}
+                        <Text
+                            style={[
+                                styles.dateLabel,
+                                { color: timestampInfo.color },
+                            ]}
+                        >
+                            {timestampInfo.label}
                         </Text>
                     </View>
                 )}
@@ -56,4 +61,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default TodoItem;
+export default TaskItem;
