@@ -6,14 +6,14 @@ import { Divider } from '../Divider';
 import { CalendarIcon } from '../Icons';
 import { Text } from '../Text';
 
-export type TodoItemProps = {
+export type TaskItemProps = {
     /**
      * Todo due date, in Unix timestamp
      */
     dueDate?: number;
 } & CheckboxProps;
 
-const TodoItem: React.FC<TodoItemProps> = (props) => {
+const TodoItem: React.FC<TaskItemProps> = (props) => {
     const { dueDate, ...checkboxProps } = props;
 
     const date = formatUnixTimestamp(dueDate);

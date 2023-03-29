@@ -8,7 +8,7 @@ import {
     View,
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { Text, TodoItem } from '../components';
+import { Text, TaskItem } from '../components';
 import { colors, spacing } from '../theme';
 import CreateTaskModal from './CreateTaskModal';
 
@@ -37,12 +37,12 @@ export default function HomePage() {
                 </Svg>
             </View>
             <ScrollView style={styles.main}>
-                <TodoItem label="No Date" />
-                <TodoItem label="Yesterday" dueDate={testDates.yesterday} />
-                <TodoItem label="Today" dueDate={testDates.today} />
-                <TodoItem label="Tomorrow" dueDate={testDates.tomorrow} />
-                <TodoItem label="Next Week" dueDate={testDates.futureClose} />
-                <TodoItem label="Next Year" dueDate={testDates.nextYear} />
+                <TaskItem label="No Date" />
+                <TaskItem label="Yesterday" dueDate={testDates.yesterday} />
+                <TaskItem label="Today" dueDate={testDates.today} />
+                <TaskItem label="Tomorrow" dueDate={testDates.tomorrow} />
+                <TaskItem label="Next Week" dueDate={testDates.futureClose} />
+                <TaskItem label="Next Year" dueDate={testDates.nextYear} />
             </ScrollView>
             <View style={styles.footer}>
                 <View
