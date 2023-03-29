@@ -1,10 +1,14 @@
 import dayjs from 'dayjs';
-import calendarPlugin from 'dayjs/plugin/calendar';
 import { colors } from '../theme';
-dayjs.extend(calendarPlugin);
 
-export const formatUnixTimestamp = (
-    unixTimestamp: number | undefined
+/**
+ * Gets the label and the color of a given timestamp in relation to current timestamp
+ *
+ * @param unixTimestamp
+ * @returns
+ */
+export const getTimestampInfo = (
+    unixTimestamp: number | null
 ): { label: string; color: string } | null => {
     if (!unixTimestamp) {
         return null;
@@ -42,10 +46,31 @@ export const formatUnixTimestamp = (
             };
 
         default: {
-            return {
-                label: dayjsObj.format(dayFormat),
-                color: colors.date.future,
-            };
+            const label = dayjsObj.format(dayFormat);
+
+            if (dayDiff < -1) {
+                return { label, color: colors.date.past };
+            }
+
+            return { label, color: colors.date.future };
         }
     }
+};
+
+/**
+ * Gets the unix timestamp value of a given date
+ * @param date
+ * @returns
+ */
+export const getDateTimestamp = (date: Date) => {
+    return Math.floor(date.valueOf() / 1000);
+};
+
+/**
+ * Gets the current unix timestamp
+ *
+ * @returns
+ */
+export const getCurrentTimestamp = () => {
+    return Math.floor(Date.now() / 1000);
 };
