@@ -10,7 +10,6 @@ import { useTasks } from '../../api/useTasks';
 import { TaskItem, Text } from '../../components';
 import { ViewTaskModal } from '../../components/ViewTaskModal';
 import { colors, spacing } from '../../theme';
-import { useKeyManager } from '../../utils/hooks/useKeyManager';
 import CreateTaskModal from '../CreateTaskModal';
 import useInboxStateReducer from './useInboxStateReducer';
 
@@ -23,20 +22,15 @@ const addBtnRadius = footerMidSectionWidth / 2 - 2;
 
 export default function HomePage() {
     const [{ dialogs }, dispatch] = useInboxStateReducer();
-    const [keys, updateKey] = useKeyManager([
-        'createTaskModal',
-        'viewTaskModal',
-    ]);
 
     const { data: tasks } = useTasks();
 
     const handlePlusButtonPress = () => {
-        dispatch({ type: 'CREATE_TASK_SET_OPEN', payload: true });
+        dispatch({ type: 'CREATE_TASK_OPEN' });
     };
 
     const handleCloseCreateTaskModal = () => {
-        updateKey('createTaskModal');
-        dispatch({ type: 'CREATE_TASK_SET_OPEN', payload: false });
+        dispatch({ type: 'CREATE_TASK_CLOSE' });
     };
 
     return (
@@ -117,13 +111,13 @@ export default function HomePage() {
             </View>
 
             <CreateTaskModal
-                key={keys.createTaskModal}
+                key={dialogs.createTask.key}
                 visible={dialogs.createTask.open}
                 onClose={handleCloseCreateTaskModal}
             />
 
             <ViewTaskModal
-                key={keys.viewTaskModal}
+                key={dialogs.viewTask.key}
                 visible={dialogs.viewTask.open}
                 task={dialogs.viewTask.task}
                 onClose={() => dispatch({ type: 'VIEW_TASK_CLOSE' })}
