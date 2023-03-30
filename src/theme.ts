@@ -5,6 +5,7 @@ export const colors = {
     background: '#FFFFFF',
     menus: '#3D3D3D',
     disabled: '#E5E5E5',
+    inbox: '#246fe0',
     date: {
         past: '#D1453B',
         today: '#058527',

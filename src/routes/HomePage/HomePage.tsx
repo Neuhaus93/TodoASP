@@ -5,9 +5,10 @@ import {
     StyleSheet,
     View,
 } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import { useTasks } from '../../api/useTasks';
 import { MyText, TaskItem } from '../../components';
+import { MoreVerticalIcon } from '../../components/Icons';
 import { ViewTaskModal } from '../../components/ViewTaskModal';
 import { colors, spacing } from '../../theme';
 import CreateTaskModal from '../CreateTaskModal';
@@ -39,11 +40,7 @@ export default function HomePage() {
                 <MyText style={{ fontWeight: 'bold', fontSize: 20 }}>
                     Inbox
                 </MyText>
-                <Svg fill={colors.icon} width="24" height="24">
-                    <Circle cx="12" cy="12" r="2" />
-                    <Circle cx="12" cy="5" r="2" />
-                    <Circle cx="12" cy="19" r="2" />
-                </Svg>
+                <MoreVerticalIcon />
             </View>
             <ScrollView style={styles.main}>
                 {Array.isArray(tasks) && (
