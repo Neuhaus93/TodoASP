@@ -1,8 +1,5 @@
 import { useState } from 'react';
 
-type Keys = Record<string, string>;
-type KeyValuePair = { id: string; value: string };
-
 /**
  * Manage keys for components, providing unique names and a function to update them
  *

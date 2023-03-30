@@ -1,7 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Task } from '../../api/types';
 import { colors, spacing } from '../../theme';
-import { getTimestampInfo } from '../../utils/dateTime';
 import { Checkbox } from '../Checkbox';
 import { Divider } from '../Divider';
 import { TaskDueDate } from '../TaskDueDate';
@@ -19,8 +18,6 @@ export type TaskItemProps = {
 
 const TaskItem: React.FC<TaskItemProps> = (props) => {
     const { task, onPress } = props;
-
-    const timestampInfo = getTimestampInfo(task.due_date);
 
     return (
         <Pressable
