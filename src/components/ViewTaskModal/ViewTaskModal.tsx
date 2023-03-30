@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import {
-    Dimensions,
     Modal,
     ModalProps,
     Pressable,
@@ -33,9 +32,6 @@ export type ViewTaskModalProps = {
     onClose: () => void;
 } & Pick<ModalProps, 'visible'>;
 
-const windowDimensions = Dimensions.get('window');
-const windowHeight = Dimensions.get('window').height;
-
 const INITIAL_HEIGHT = 200;
 
 const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
@@ -44,12 +40,12 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
     const [editView, setEditView] = useState(false);
 
     const sharedHeight = useSharedValue(INITIAL_HEIGHT);
-
     const animatedStyles = useAnimatedStyle(() => {
         return {
             height: sharedHeight.value,
         };
     });
+    const expanded = editView || sharedHeight.value === windowHeight;
 
     useEffect(() => {
         if (editView) {
@@ -60,19 +56,39 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
         }
     }, [editView]);
 
+    const handleRequestClose = () => {
+        if (editView) {
+            setEditView(false);
+            return;
+        }
+
+        onClose();
+    };
+
     if (!task) {
         return null;
     }
 
     return (
-        <Modal visible={visible} transparent animationType="fade">
+        <Modal
+            visible={visible}
+            transparent
+            animationType="fade"
+            onRequestClose={handleRequestClose}
+        >
             <Backdrop onClose={onClose}>
                 <Pressable
                     onPress={() => {
                         setEditView(true);
                     }}
                 >
-                    <Animated.View style={[styles.container, animatedStyles]}>
+                    <Animated.View
+                        style={[
+                            styles.container,
+                            animatedStyles,
+                            expanded ? styles.containerExpanded : undefined,
+                        ]}
+                    >
                         <View
                             style={{
                                 flexDirection: 'row',
@@ -156,7 +172,8 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 16,
     },
     containerExpanded: {
-        height: '100%',
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
     },
     dueDateContainer: {
         marginTop: spacing(4),

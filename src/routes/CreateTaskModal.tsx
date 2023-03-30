@@ -78,6 +78,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
             transparent={true}
             animationType="fade"
             onShow={onShowModal}
+            onRequestClose={onClose}
         >
             <Backdrop onClose={onClose}>
                 <Pressable style={styles.container}>
