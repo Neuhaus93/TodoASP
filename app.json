@@ -1,5 +1,6 @@
 {
   "expo": {
+    "scheme": "todoist-clone",
     "name": "todoist-clone",
     "slug": "todoist-clone",
     "version": "1.0.0",
@@ -24,7 +25,8 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     }
   }
 }

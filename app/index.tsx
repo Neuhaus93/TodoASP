@@ -6,13 +6,13 @@ import {
     View,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { useTasks } from '../../api/useTasks';
-import { MyText, TaskItem } from '../../components';
-import { MoreVerticalIcon } from '../../components/Icons';
-import { ViewTaskModal } from '../../components/ViewTaskModal';
-import { colors, spacing } from '../../theme';
-import CreateTaskModal from '../CreateTaskModal';
-import useInboxStateReducer from './useInboxStateReducer';
+import { useTasks } from '../src/api/useTasks';
+import { MyText, TaskItem } from '../src/components';
+import { MoreVerticalIcon } from '../src/components/Icons';
+import { ViewTaskModal } from '../src/components/ViewTaskModal';
+import CreateTaskModal from '../src/routes/CreateTaskModal';
+import useInboxStateReducer from '../src/routes/HomePage/useInboxStateReducer';
+import { colors, spacing } from '../src/theme';
 
 const windowDimensions = Dimensions.get('window');
 const footerMidSectionWidth = 54;
