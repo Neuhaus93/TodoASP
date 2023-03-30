@@ -4,22 +4,24 @@ import DateTimePicker, {
 import { useMemo, useRef, useState } from 'react';
 import {
     Modal,
+    ModalProps,
     Pressable,
     StyleSheet,
     TextInput,
-    TouchableWithoutFeedback,
     View,
 } from 'react-native';
 import { useCreateTask } from '../api/useCreateTask';
-import { Divider, Text } from '../components';
+import { Backdrop, Divider, Text } from '../components';
 import { CalendarIcon, SendIcon, TrashIcon } from '../components/Icons';
 import { colors, spacing } from '../theme';
 import { getDateTimestamp, getTimestampInfo } from '../utils/dateTime';
 
 export type CreateTaskModalProps = {
-    visible: boolean;
+    /**
+     * Callback fired when the modal is closed
+     */
     onClose: () => void;
-};
+} & Pick<ModalProps, 'visible'>;
 
 const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
     const { visible, onClose } = props;
@@ -77,86 +79,82 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
             animationType="fade"
             onShow={onShowModal}
         >
-            <TouchableWithoutFeedback onPressOut={onClose}>
-                <View style={styles.root}>
-                    <TouchableWithoutFeedback>
-                        <View style={styles.container}>
-                            <View>
-                                <TextInput
-                                    ref={taskNameInputRef}
-                                    style={{ fontSize: 20 }}
-                                    placeholder="Task name"
-                                    value={taskName}
-                                    onChangeText={setTaskName}
+            <Backdrop onClose={onClose}>
+                <Pressable style={styles.container}>
+                    <View>
+                        <TextInput
+                            ref={taskNameInputRef}
+                            style={{ fontSize: 20 }}
+                            placeholder="Task name"
+                            value={taskName}
+                            onChangeText={setTaskName}
+                        />
+                        <View
+                            style={{
+                                marginTop: spacing(4),
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Pressable
+                                style={styles.dueDateBtn}
+                                onPress={() => setShowDatePicker(true)}
+                            >
+                                <CalendarIcon
+                                    width="16"
+                                    height="16"
+                                    fill={dateInfo?.color}
                                 />
-                                <View
+                                <Text
                                     style={{
-                                        marginTop: spacing(4),
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
+                                        marginLeft: spacing(1),
+                                        color: dateInfo?.color,
                                     }}
                                 >
-                                    <Pressable
-                                        style={styles.dueDateBtn}
-                                        onPress={() => setShowDatePicker(true)}
-                                    >
-                                        <CalendarIcon
-                                            width="16"
-                                            height="16"
-                                            fill={dateInfo?.color}
-                                        />
-                                        <Text
-                                            style={{
-                                                marginLeft: spacing(1),
-                                                color: dateInfo?.color,
-                                            }}
-                                        >
-                                            {dateInfo?.label}
-                                        </Text>
-                                    </Pressable>
+                                    {dateInfo?.label}
+                                </Text>
+                            </Pressable>
 
-                                    {!noDate && (
-                                        <Pressable
-                                            style={styles.deleteButton}
-                                            onPress={handleDateDelete}
-                                        >
-                                            <TrashIcon
-                                                width="20"
-                                                height="20"
-                                                fill={colors.icon}
-                                            />
-                                        </Pressable>
-                                    )}
-                                </View>
-                            </View>
-                            <View style={{ marginVertical: spacing(3) }}>
-                                <Divider />
-                            </View>
-                            <View>
+                            {!noDate && (
                                 <Pressable
-                                    disabled={saveDisabled}
-                                    onPress={handleTaskCreate}
+                                    style={styles.deleteButton}
+                                    onPress={handleDateDelete}
                                 >
-                                    <View
-                                        style={[
-                                            styles.iconButton,
-                                            saveDisabled
-                                                ? undefined
-                                                : styles.iconButtonActive,
-                                        ]}
-                                    >
-                                        <SendIcon
-                                            height="20"
-                                            width="20"
-                                            fill={'white'}
-                                        />
-                                    </View>
+                                    <TrashIcon
+                                        width="20"
+                                        height="20"
+                                        fill={colors.icon}
+                                    />
                                 </Pressable>
-                            </View>
+                            )}
                         </View>
-                    </TouchableWithoutFeedback>
-                </View>
-            </TouchableWithoutFeedback>
+                    </View>
+                    <View style={{ marginVertical: spacing(3) }}>
+                        <Divider />
+                    </View>
+                    <View>
+                        <Pressable
+                            disabled={saveDisabled}
+                            onPress={handleTaskCreate}
+                        >
+                            <View
+                                style={[
+                                    styles.iconButton,
+                                    saveDisabled
+                                        ? undefined
+                                        : styles.iconButtonActive,
+                                ]}
+                            >
+                                <SendIcon
+                                    height="20"
+                                    width="20"
+                                    fill={'white'}
+                                />
+                            </View>
+                        </Pressable>
+                    </View>
+                </Pressable>
+            </Backdrop>
 
             {showDatePicker && (
                 <DateTimePicker value={date} onChange={handleDateChange} />
@@ -166,11 +164,6 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
 };
 
 const styles = StyleSheet.create({
-    root: {
-        flex: 1,
-        justifyContent: 'flex-end',
-        backgroundColor: 'rgba(0,0,0,0.4)',
-    },
     container: {
         backgroundColor: colors.background,
         padding: spacing(4),

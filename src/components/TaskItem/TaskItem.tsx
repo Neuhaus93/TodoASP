@@ -1,27 +1,35 @@
-import { StyleSheet, View } from 'react-native';
-import { spacing } from '../../theme';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Task } from '../../api/types';
+import { colors, spacing } from '../../theme';
 import { getTimestampInfo } from '../../utils/dateTime';
-import { Checkbox, CheckboxProps } from '../Checkbox';
+import { Checkbox } from '../Checkbox';
 import { Divider } from '../Divider';
 import { CalendarIcon } from '../Icons';
 import { Text } from '../Text';
 
 export type TaskItemProps = {
     /**
-     * Todo due date, in Unix timestamp
+     * Task information
      */
-    timestamp: number | null;
-} & CheckboxProps;
+    task: Task;
+    /**
+     * Action called when the task item is pressed
+     */
+    onPress?: (task: Task) => void;
+};
 
 const TaskItem: React.FC<TaskItemProps> = (props) => {
-    const { timestamp, ...checkboxProps } = props;
+    const { task, onPress } = props;
 
-    const timestampInfo = getTimestampInfo(timestamp);
+    const timestampInfo = getTimestampInfo(task.due_date);
 
     return (
-        <View>
+        <Pressable
+            onPress={() => onPress?.(task)}
+            android_ripple={{ color: colors.background, foreground: true }}
+        >
             <View style={styles.checkboxContainer}>
-                <Checkbox {...checkboxProps} />
+                <Checkbox label={task.name} checked={task.completed} />
                 {!!timestampInfo && (
                     <View style={styles.dateContainer}>
                         <CalendarIcon
@@ -41,7 +49,7 @@ const TaskItem: React.FC<TaskItemProps> = (props) => {
                 )}
             </View>
             <Divider />
-        </View>
+        </Pressable>
     );
 };
 

@@ -1,5 +1,3 @@
-import dayjs from 'dayjs';
-import { useState } from 'react';
 import {
     Dimensions,
     Pressable,
@@ -8,10 +6,13 @@ import {
     View,
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { useTasks } from '../api/useTasks';
-import { TaskItem, Text } from '../components';
-import { colors, spacing } from '../theme';
-import CreateTaskModal from './CreateTaskModal';
+import { useTasks } from '../../api/useTasks';
+import { TaskItem, Text } from '../../components';
+import { ViewTaskModal } from '../../components/ViewTaskModal';
+import { colors, spacing } from '../../theme';
+import { useKeyManager } from '../../utils/hooks/useKeyManager';
+import CreateTaskModal from '../CreateTaskModal';
+import useInboxStateReducer from './useInboxStateReducer';
 
 const windowDimensions = Dimensions.get('window');
 const footerMidSectionWidth = 54;
@@ -21,21 +22,21 @@ const footerHeight = footerMidSectionWidth;
 const addBtnRadius = footerMidSectionWidth / 2 - 2;
 
 export default function HomePage() {
-    const [createModalOpen, setCreateModalOpen] = useState(false);
-    const [createTaskModalKey, setCreateTaskModalKey] =
-        useState('createTaskModal-0');
+    const [{ dialogs }, dispatch] = useInboxStateReducer();
+    const [keys, updateKey] = useKeyManager([
+        'createTaskModal',
+        'viewTaskModal',
+    ]);
 
     const { data: tasks } = useTasks();
 
     const handlePlusButtonPress = () => {
-        setCreateModalOpen(true);
+        dispatch({ type: 'CREATE_TASK_SET_OPEN', payload: true });
     };
 
     const handleCloseCreateTaskModal = () => {
-        const keyIndex = Number(createTaskModalKey.split('-')[1]);
-
-        setCreateTaskModalKey(`createTaskModal-${keyIndex + 1}`);
-        setCreateModalOpen(false);
+        updateKey('createTaskModal');
+        dispatch({ type: 'CREATE_TASK_SET_OPEN', payload: false });
     };
 
     return (
@@ -54,8 +55,13 @@ export default function HomePage() {
                         {tasks.map((task) => (
                             <TaskItem
                                 key={task.id}
-                                label={task.name}
-                                timestamp={task.due_date}
+                                task={task}
+                                onPress={(task) =>
+                                    dispatch({
+                                        type: 'VIEW_TASK_OPEN',
+                                        payload: task,
+                                    })
+                                }
                             />
                         ))}
                     </>
@@ -111,9 +117,16 @@ export default function HomePage() {
             </View>
 
             <CreateTaskModal
-                key={createTaskModalKey}
-                visible={createModalOpen}
+                key={keys.createTaskModal}
+                visible={dialogs.createTask.open}
                 onClose={handleCloseCreateTaskModal}
+            />
+
+            <ViewTaskModal
+                key={keys.viewTaskModal}
+                visible={dialogs.viewTask.open}
+                task={dialogs.viewTask.task}
+                onClose={() => dispatch({ type: 'VIEW_TASK_CLOSE' })}
             />
         </View>
     );
@@ -164,12 +177,3 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
 });
-
-const testDates = {
-    pastWeek: dayjs().subtract(1, 'week').unix(),
-    yesterday: dayjs().subtract(1, 'day').unix(),
-    today: dayjs().unix(),
-    tomorrow: dayjs().add(1, 'day').unix(),
-    futureClose: dayjs().add(2, 'day').unix(),
-    nextYear: dayjs().add(1, 'week').add(1, 'year').unix(),
-};
