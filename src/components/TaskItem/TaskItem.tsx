@@ -4,8 +4,7 @@ import { colors, spacing } from '../../theme';
 import { getTimestampInfo } from '../../utils/dateTime';
 import { Checkbox } from '../Checkbox';
 import { Divider } from '../Divider';
-import { CalendarIcon } from '../Icons';
-import { Text } from '../Text';
+import { TaskDueDate } from '../TaskDueDate';
 
 export type TaskItemProps = {
     /**
@@ -30,23 +29,9 @@ const TaskItem: React.FC<TaskItemProps> = (props) => {
         >
             <View style={styles.checkboxContainer}>
                 <Checkbox label={task.name} checked={task.completed} />
-                {!!timestampInfo && (
-                    <View style={styles.dateContainer}>
-                        <CalendarIcon
-                            fill={timestampInfo.color}
-                            width="17"
-                            height="17"
-                        />
-                        <Text
-                            style={[
-                                styles.dateLabel,
-                                { color: timestampInfo.color },
-                            ]}
-                        >
-                            {timestampInfo.label}
-                        </Text>
-                    </View>
-                )}
+                <View style={styles.dueDateContainer}>
+                    <TaskDueDate dueDate={task.due_date} />
+                </View>
             </View>
             <Divider />
         </Pressable>
@@ -57,9 +42,7 @@ const styles = StyleSheet.create({
     checkboxContainer: {
         marginVertical: spacing(4),
     },
-    dateContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    dueDateContainer: {
         marginLeft: 32,
         marginTop: spacing(1),
     },

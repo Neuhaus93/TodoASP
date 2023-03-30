@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
-import { Text } from '../Text';
 import Svg, { Circle } from 'react-native-svg';
-import { colors } from '../../theme';
+import { colors, spacing } from '../../theme';
+import { Text } from '../Text';
 
 export type CheckboxProps = {
     label?: string;
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     label: {
-        marginLeft: 8,
+        marginLeft: spacing(2),
     },
 });
 

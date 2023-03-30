@@ -1,8 +1,9 @@
-import { Modal, ModalProps, Pressable, StyleSheet } from 'react-native';
+import { Modal, ModalProps, Pressable, StyleSheet, View } from 'react-native';
 import { Task } from '../../api/types';
 import { colors, spacing } from '../../theme';
 import { Backdrop } from '../Backdrop';
 import { Checkbox } from '../Checkbox';
+import { TaskDueDate } from '../TaskDueDate';
 
 export type ViewTaskModalProps = {
     /**
@@ -27,6 +28,13 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
             <Backdrop onClose={onClose}>
                 <Pressable style={styles.container}>
                     <Checkbox label={task.name} checked={task.completed} />
+                    <View style={styles.dueDateContainer}>
+                        <TaskDueDate
+                            dueDate={task.due_date}
+                            size="lg"
+                            defaultColorText
+                        />
+                    </View>
                 </Pressable>
             </Backdrop>
         </Modal>
@@ -39,6 +47,9 @@ const styles = StyleSheet.create({
         padding: spacing(4),
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
+    },
+    dueDateContainer: {
+        marginTop: spacing(4),
     },
 });
 
