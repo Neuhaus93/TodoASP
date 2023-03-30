@@ -1,13 +1,12 @@
-//
 import {
     StyleSheet,
     Text as BaseText,
     TextProps as BaseTextProps,
 } from 'react-native';
 
-export type TextProps = {} & BaseTextProps;
+export type MyTextProps = {} & BaseTextProps;
 
-const Text: React.FC<TextProps> = (props) => {
+const MyText: React.FC<MyTextProps> = (props) => {
     const { ...baseTextProps } = props;
 
     return (
@@ -25,4 +24,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Text;
+export default MyText;

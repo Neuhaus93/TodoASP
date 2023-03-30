@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { colors, spacing } from '../../theme';
-import { Text } from '../Text';
+import { MyText } from '../MyText';
 
 export type CheckboxProps = {
     label?: string;
@@ -22,7 +22,7 @@ const Checkbox: React.FC<CheckboxProps> = (props) => {
             >
                 <Circle strokeWidth="1" cx="12" cy="12" r="11" />
             </Svg>
-            <Text style={styles.label}>{label}</Text>
+            <MyText style={styles.label}>{label}</MyText>
         </View>
     );
 };

@@ -11,7 +11,7 @@ import {
     View,
 } from 'react-native';
 import { useCreateTask } from '../api/useCreateTask';
-import { Backdrop, Divider, Text } from '../components';
+import { Backdrop, Divider, MyText } from '../components';
 import { CalendarIcon, SendIcon, TrashIcon } from '../components/Icons';
 import { colors, spacing } from '../theme';
 import { getDateTimestamp, getTimestampInfo } from '../utils/dateTime';
@@ -105,14 +105,14 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
                                     height="16"
                                     fill={dateInfo?.color}
                                 />
-                                <Text
+                                <MyText
                                     style={{
                                         marginLeft: spacing(1),
                                         color: dateInfo?.color,
                                     }}
                                 >
                                     {dateInfo?.label}
-                                </Text>
+                                </MyText>
                             </Pressable>
 
                             {!noDate && (
