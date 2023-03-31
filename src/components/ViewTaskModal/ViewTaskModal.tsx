@@ -1,3 +1,6 @@
+import DateTimePicker, {
+    DatePickerOptions,
+} from '@react-native-community/datetimepicker';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
     Keyboard,
@@ -18,6 +21,7 @@ import Animated, {
 import { Task } from '../../api/types';
 import { useUpdateTask } from '../../api/useUpdateTask';
 import { colors, spacing } from '../../theme';
+import { getDateTimestamp } from '../../utils/dateTime';
 import { Backdrop } from '../Backdrop';
 import { Checkbox } from '../Checkbox';
 import {
@@ -25,6 +29,7 @@ import {
     DescriptionIcon,
     InboxIcon,
     MoreVerticalIcon,
+    TrashIcon,
 } from '../Icons';
 import { MyText } from '../MyText';
 import { TaskDueDate } from '../TaskDueDate';
@@ -47,10 +52,18 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
     const { height: windowHeight } = useWindowDimensions();
     const [editView, setEditView] = useState(false);
     const [viewExpanded, setViewExpanded] = useState(false);
+    const [showDatePicker, setShowDatePicker] = useState(false);
+
     const [taskName, setTaskName] = useState(task?.name ?? '');
     const [taskDescription, setTaskDescription] = useState(
         task?.description ?? ''
     );
+    const [date, setDate] = useState({
+        displayData: task?.due_date
+            ? new Date(task.due_date * 1000)
+            : new Date(),
+        noDueDate: !task?.due_date,
+    });
 
     const disableSave = useMemo(() => {
         // No task name provided
@@ -83,6 +96,38 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
      */
     const updateViewExpanded = () => {
         setViewExpanded(true);
+    };
+
+    const handleDateChange: DatePickerOptions['onChange'] = (event, date) => {
+        setShowDatePicker(false);
+
+        if (task && event.type === 'set' && date) {
+            setDate({
+                displayData: date,
+                noDueDate: false,
+            });
+
+            mutate({
+                id: task.id,
+                due_date: getDateTimestamp(date),
+            });
+        }
+    };
+
+    const handleDateDelete = () => {
+        if (!task) {
+            return;
+        }
+
+        mutate({
+            id: task.id,
+            due_date: null,
+        });
+
+        setDate({
+            displayData: new Date(),
+            noDueDate: true,
+        });
     };
 
     /**
@@ -217,7 +262,6 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
                                     onChangeText={setTaskDescription}
                                     maxLength={200}
                                     placeholder="Description"
-                                    defaultValue={task?.description || ''}
                                     onFocus={() => setEditView(true)}
                                     style={{
                                         marginLeft: spacing(2),
@@ -229,17 +273,50 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
                         )}
 
                         {!editView && (
-                            <View style={styles.dueDateContainer}>
-                                <TaskDueDate
-                                    dueDate={task.due_date}
-                                    size="lg"
-                                    defaultColorText
-                                />
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    marginTop: spacing(4),
+                                }}
+                            >
+                                <Pressable
+                                    onPress={() => setShowDatePicker(true)}
+                                >
+                                    <TaskDueDate
+                                        dueDate={
+                                            date.noDueDate
+                                                ? null
+                                                : getDateTimestamp(
+                                                      date.displayData
+                                                  )
+                                        }
+                                        size="lg"
+                                        defaultColorText
+                                    />
+                                </Pressable>
+                                {!date.noDueDate && (
+                                    <Pressable
+                                        style={{
+                                            marginLeft: spacing(2),
+                                        }}
+                                        onPress={handleDateDelete}
+                                    >
+                                        <TrashIcon width="20" height="20" />
+                                    </Pressable>
+                                )}
                             </View>
                         )}
                     </Animated.View>
                 </Pressable>
             </Backdrop>
+
+            {showDatePicker && (
+                <DateTimePicker
+                    value={date.displayData}
+                    onChange={handleDateChange}
+                />
+            )}
         </Modal>
     );
 };
@@ -305,9 +382,6 @@ const styles = StyleSheet.create({
     containerExpanded: {
         borderTopLeftRadius: 0,
         borderTopRightRadius: 0,
-    },
-    dueDateContainer: {
-        marginTop: spacing(4),
     },
 });
 

@@ -9,9 +9,9 @@ import { colors } from '../theme';
  */
 export const getTimestampInfo = (
     unixTimestamp: number | null
-): { label: string; color: string } | null => {
+): { label: string; color: string } => {
     if (!unixTimestamp) {
-        return null;
+        return { label: 'Due Date', color: colors.date.future };
     }
 
     const dayjsObj = dayjs.unix(unixTimestamp);
@@ -62,7 +62,11 @@ export const getTimestampInfo = (
  * @param date
  * @returns
  */
-export const getDateTimestamp = (date: Date) => {
+export const getDateTimestamp = (date: Date | null): number | null => {
+    if (!date) {
+        return null;
+    }
+
     return Math.floor(date.valueOf() / 1000);
 };
 

@@ -17,10 +17,19 @@ export type TaskDueDateProps = {
      * If `true`, the text color will be default
      */
     defaultColorText?: boolean;
+    /**
+     * Don't render the component if no due date is provided
+     */
+    hideIfNoDueDate?: boolean;
 };
 
 const TaskDueDate: React.FC<TaskDueDateProps> = (props) => {
-    const { dueDate, size = 'md', defaultColorText = false } = props;
+    const {
+        dueDate,
+        size = 'md',
+        defaultColorText = false,
+        hideIfNoDueDate = false,
+    } = props;
     const timestampInfo = getTimestampInfo(dueDate);
 
     const iconSize = size === 'md' ? 17 : 24;
@@ -28,7 +37,7 @@ const TaskDueDate: React.FC<TaskDueDateProps> = (props) => {
     const fontColor = defaultColorText ? undefined : timestampInfo?.color;
     const textMarginLeft = size === 'md' ? spacing(1) : spacing(2);
 
-    if (!timestampInfo) {
+    if (!dueDate && hideIfNoDueDate) {
         return null;
     }
 
