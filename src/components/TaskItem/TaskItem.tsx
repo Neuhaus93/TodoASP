@@ -3,6 +3,7 @@ import { Task } from '../../api/types';
 import { colors, spacing } from '../../theme';
 import { Checkbox } from '../Checkbox';
 import { Divider } from '../Divider';
+import { MyText } from '../MyText';
 import { TaskDueDate } from '../TaskDueDate';
 
 export type TaskItemProps = {
@@ -26,7 +27,15 @@ const TaskItem: React.FC<TaskItemProps> = (props) => {
         >
             <View style={styles.checkboxContainer}>
                 <Checkbox label={task.name} checked={task.completed} />
-                <View style={styles.dueDateContainer}>
+                {task.description && (
+                    <MyText
+                        numberOfLines={1}
+                        style={[styles.taskSubInfo, { fontSize: 12 }]}
+                    >
+                        {task.description}
+                    </MyText>
+                )}
+                <View style={styles.taskSubInfo}>
                     <TaskDueDate dueDate={task.due_date} />
                 </View>
             </View>
@@ -38,8 +47,9 @@ const TaskItem: React.FC<TaskItemProps> = (props) => {
 const styles = StyleSheet.create({
     checkboxContainer: {
         marginVertical: spacing(4),
+        paddingRight: spacing(6),
     },
-    dueDateContainer: {
+    taskSubInfo: {
         marginLeft: 32,
         marginTop: spacing(1),
     },

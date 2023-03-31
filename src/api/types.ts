@@ -3,6 +3,8 @@ export type Task = {
     id: string;
     /** Name of the task */
     name: string;
+    /** Description of the task */
+    description: string | null;
     /** Due date of the task, in unix timestamp */
     due_date: number | null;
     /** Boolean indicating if the task is completed or not */
