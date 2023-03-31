@@ -11,10 +11,10 @@ import Svg, { Path } from 'react-native-svg';
 import { Task, Tasks } from '../src/api/types';
 import { useTasks } from '../src/api/useTasks';
 import { MyText, TaskItem } from '../src/components';
+import { CreateTaskModal } from '../src/components/CreateTaskModal';
 import { MoreVerticalIcon } from '../src/components/Icons';
 import { ViewTaskModal } from '../src/components/ViewTaskModal';
-import CreateTaskModal from '../src/routes/CreateTaskModal';
-import useInboxStateReducer from '../src/routes/HomePage/useInboxStateReducer';
+import { useInboxStateReducer } from '../src/hooks/reducers/useInboxStateReducer';
 import { colors, spacing } from '../src/theme';
 
 const windowDimensions = Dimensions.get('window');
@@ -51,6 +51,7 @@ export default function HomePage() {
                 <MoreVerticalIcon />
             </View>
             <ScrollView style={styles.main}>
+                <ClearCache />
                 {Array.isArray(tasks) && (
                     <>
                         {tasks.map((task) => (
@@ -133,12 +134,18 @@ export default function HomePage() {
     );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ClearCache = () => (
-    <Pressable onPress={() => AsyncStorage.clear()}>
-        <MyText>Clear Cache</MyText>
-    </Pressable>
-);
+// TODO: Remove this helper component in the future
+const ClearCache: React.FC<{ visible?: boolean }> = ({ visible = false }) => {
+    if (!visible) {
+        return null;
+    }
+
+    return (
+        <Pressable onPress={() => AsyncStorage.clear()}>
+            <MyText>Clear Cache</MyText>
+        </Pressable>
+    );
+};
 
 const styles = StyleSheet.create({
     container: {

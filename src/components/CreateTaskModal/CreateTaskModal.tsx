@@ -10,12 +10,13 @@ import {
     TextInput,
     View,
 } from 'react-native';
-import { useCreateTask } from '../api/useCreateTask';
-import { Backdrop, Divider } from '../components';
-import { SendIcon, TrashIcon } from '../components/Icons';
-import { TaskDueDate } from '../components/TaskDueDate';
-import { colors, spacing } from '../theme';
-import { getDateTimestamp } from '../utils/dateTime';
+import { useCreateTask } from '../../api/useCreateTask';
+import { colors, spacing } from '../../theme';
+import { getDateTimestamp } from '../../utils/dateTime';
+import { Backdrop } from '../Backdrop';
+import { Divider } from '../Divider';
+import { SendIcon, TrashIcon } from '../Icons';
+import { TaskDueDate } from '../TaskDueDate';
 
 export type CreateTaskModalProps = {
     /**
@@ -37,12 +38,18 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
 
     const { mutate } = useCreateTask();
 
+    /**
+     * Focus the task name input on opening the modal. Wait a bit to prevent if from not opening
+     */
     const onShowModal = () => {
         setTimeout(() => {
             taskNameInputRef.current?.focus();
         }, 20);
     };
 
+    /**
+     * Handles changes on the due date, when changing to an existing date
+     */
     const handleDateChange: DatePickerOptions['onChange'] = (event, date) => {
         setShowDatePicker(false);
 
@@ -52,11 +59,17 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
         }
     };
 
+    /**
+     * Handles removing the due date from the task
+     */
     const handleDateDelete = () => {
         setNoDate(true);
         setDate(new Date());
     };
 
+    /**
+     * Creates a task and closes the modal
+     */
     const handleTaskCreate = () => {
         mutate({
             name: taskName,
@@ -85,7 +98,6 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
                             onChangeText={setTaskName}
                         />
                         <TextInput
-                            // ref={taskNameInputRef}
                             multiline
                             numberOfLines={1}
                             maxLength={200}

@@ -1,7 +1,7 @@
 import DateTimePicker, {
     DatePickerOptions,
 } from '@react-native-community/datetimepicker';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
     Keyboard,
     Modal,
@@ -24,15 +24,10 @@ import { colors, spacing } from '../../theme';
 import { getDateTimestamp } from '../../utils/dateTime';
 import { Backdrop } from '../Backdrop';
 import { Checkbox } from '../Checkbox';
-import {
-    ArrowBackIcon,
-    DescriptionIcon,
-    InboxIcon,
-    MoreVerticalIcon,
-    TrashIcon,
-} from '../Icons';
-import { MyText } from '../MyText';
+import { DescriptionIcon, TrashIcon } from '../Icons';
 import { TaskDueDate } from '../TaskDueDate';
+import Header from './Header';
+import { useViewTaskReducer } from './useViewTaskReducer';
 
 export type ViewTaskModalProps = {
     /**
@@ -50,37 +45,11 @@ const INITIAL_HEIGHT = 200;
 const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
     const { task, visible, onClose } = props;
     const { height: windowHeight } = useWindowDimensions();
-    const [editView, setEditView] = useState(false);
-    const [viewExpanded, setViewExpanded] = useState(false);
-    const [showDatePicker, setShowDatePicker] = useState(false);
 
-    const [taskName, setTaskName] = useState(task?.name ?? '');
-    const [taskDescription, setTaskDescription] = useState(
-        task?.description ?? ''
-    );
-    const [date, setDate] = useState({
-        displayData: task?.due_date
-            ? new Date(task.due_date * 1000)
-            : new Date(),
-        noDueDate: !task?.due_date,
-    });
-
-    const disableSave = useMemo(() => {
-        // No task name provided
-        if (taskName.length === 0) {
-            return true;
-        }
-
-        // Task name has not changed
-        if (
-            task?.name === taskName &&
-            (task?.description ?? '') === taskDescription
-        ) {
-            return true;
-        }
-
-        return false;
-    }, [task, taskName, taskDescription]);
+    const [
+        { values, showDatePicker, editView, viewExpanded, disableSave },
+        dispatch,
+    ] = useViewTaskReducer(task);
 
     const sharedHeight = useSharedValue(INITIAL_HEIGHT);
 
@@ -94,17 +63,17 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
     /**
      * Helper function to expand the modal
      */
-    const updateViewExpanded = () => {
-        setViewExpanded(true);
-    };
+    const updateViewExpanded = useCallback(() => {
+        dispatch({ type: 'EXPAND_VIEW' });
+    }, [dispatch]);
 
     const handleDateChange: DatePickerOptions['onChange'] = (event, date) => {
-        setShowDatePicker(false);
+        dispatch({ type: 'SET_SHOW_DATE_PICKER', payload: false });
 
         if (task && event.type === 'set' && date) {
-            setDate({
-                displayData: date,
-                noDueDate: false,
+            dispatch({
+                type: 'SET_DATE',
+                payload: date,
             });
 
             mutate({
@@ -114,20 +83,21 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
         }
     };
 
+    /**
+     * Handle deleting the due date of a task
+     */
     const handleDateDelete = () => {
-        if (!task) {
-            return;
+        if (task) {
+            mutate({
+                id: task.id,
+                due_date: null,
+            });
+
+            dispatch({
+                type: 'SET_DATE',
+                payload: null,
+            });
         }
-
-        mutate({
-            id: task.id,
-            due_date: null,
-        });
-
-        setDate({
-            displayData: new Date(),
-            noDueDate: true,
-        });
     };
 
     /**
@@ -140,16 +110,12 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
 
         mutate({
             id: task.id,
-            name: taskName.trim(),
-            description: taskDescription.trim() || null,
+            name: values.name.trim(),
+            description: values.description.trim() || null,
         });
 
-        // Trim state values
-        setTaskName(taskName.trim());
-        setTaskDescription(taskDescription.trim());
-
-        // Go back to view modal
-        setEditView(false);
+        // Trim state values and go back to view modal
+        dispatch({ type: 'TASK_UPDATED' });
     };
 
     useEffect(() => {
@@ -172,24 +138,30 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
         if (!editView) {
             Keyboard.dismiss();
         }
-    }, [editView, sharedHeight, viewExpanded, windowHeight]);
+    }, [
+        editView,
+        sharedHeight,
+        updateViewExpanded,
+        viewExpanded,
+        windowHeight,
+    ]);
 
     // If the keyboard is dismissed on "Edit", return to the "View"
     useEffect(() => {
         const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
             if (editView) {
-                setEditView(false);
+                dispatch({ type: 'SET_EDIT_VIEW', payload: false });
             }
         });
 
         return () => {
             hideSubscription.remove();
         };
-    }, [editView]);
+    }, [editView, dispatch]);
 
     const handleRequestClose = () => {
         if (editView) {
-            setEditView(false);
+            dispatch({ type: 'SET_EDIT_VIEW', payload: false });
             return;
         }
 
@@ -217,32 +189,33 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
                             viewExpanded ? styles.containerExpanded : undefined,
                         ]}
                     >
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                marginBottom: spacing(4),
+                        <Header
+                            editView={editView}
+                            editHeaderProps={{
+                                disableSave,
+                                onBack: () =>
+                                    dispatch({
+                                        type: 'SET_EDIT_VIEW',
+                                        payload: false,
+                                    }),
+                                onSave: handleUpdateTask,
                             }}
-                        >
-                            {editView ? (
-                                <EditHeader
-                                    disableSave={disableSave}
-                                    onBack={() => setEditView(false)}
-                                    onSave={handleUpdateTask}
-                                />
-                            ) : (
-                                <ViewHeader />
-                            )}
-                        </View>
+                        />
 
                         <Checkbox
-                            label={taskName}
-                            value={taskName}
-                            onChangeText={setTaskName}
+                            label={values.name}
+                            value={values.name}
+                            onChangeText={(payload) =>
+                                dispatch({ type: 'SET_NAME', payload })
+                            }
                             checked={task.completed}
                             editable
-                            onInputFocus={() => setEditView(true)}
+                            onInputFocus={() =>
+                                dispatch({
+                                    type: 'SET_EDIT_VIEW',
+                                    payload: true,
+                                })
+                            }
                         />
 
                         {(editView || task?.description) && (
@@ -258,11 +231,21 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
                                 />
                                 <TextInput
                                     multiline
-                                    value={taskDescription}
-                                    onChangeText={setTaskDescription}
+                                    value={values.description}
+                                    onChangeText={(payload) =>
+                                        dispatch({
+                                            type: 'SET_DESCRIPTION',
+                                            payload,
+                                        })
+                                    }
                                     maxLength={200}
                                     placeholder="Description"
-                                    onFocus={() => setEditView(true)}
+                                    onFocus={() =>
+                                        dispatch({
+                                            type: 'SET_EDIT_VIEW',
+                                            payload: true,
+                                        })
+                                    }
                                     style={{
                                         marginLeft: spacing(2),
                                         width: '100%',
@@ -281,21 +264,20 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
                                 }}
                             >
                                 <Pressable
-                                    onPress={() => setShowDatePicker(true)}
+                                    onPress={() =>
+                                        dispatch({
+                                            type: 'SET_SHOW_DATE_PICKER',
+                                            payload: true,
+                                        })
+                                    }
                                 >
                                     <TaskDueDate
-                                        dueDate={
-                                            date.noDueDate
-                                                ? null
-                                                : getDateTimestamp(
-                                                      date.displayData
-                                                  )
-                                        }
+                                        dueDate={getDateTimestamp(values.date)}
                                         size="lg"
                                         defaultColorText
                                     />
                                 </Pressable>
-                                {!date.noDueDate && (
+                                {!!values.date && (
                                     <Pressable
                                         style={{
                                             marginLeft: spacing(2),
@@ -313,62 +295,11 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
 
             {showDatePicker && (
                 <DateTimePicker
-                    value={date.displayData}
+                    value={values.date || new Date()}
                     onChange={handleDateChange}
                 />
             )}
         </Modal>
-    );
-};
-
-const ViewHeader = () => {
-    return (
-        <>
-            <View
-                style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginLeft: 4,
-                }}
-            >
-                <InboxIcon fill={colors.inbox} width="16" height="16" />
-                <MyText
-                    color="secondary"
-                    style={{ marginLeft: 4 + spacing(2) }}
-                >
-                    Inbox
-                </MyText>
-            </View>
-
-            <MoreVerticalIcon width="20" height="20" />
-        </>
-    );
-};
-
-const EditHeader: React.FC<{
-    onBack: () => void;
-    disableSave: boolean;
-    onSave: () => void;
-}> = (props) => {
-    return (
-        <>
-            <View
-                style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                }}
-            >
-                <Pressable onPress={props.onBack}>
-                    <ArrowBackIcon />
-                </Pressable>
-                <MyText style={{ marginLeft: spacing(2) }}>Edit task</MyText>
-            </View>
-            <Pressable onPress={props.onSave} disabled={props.disableSave}>
-                <MyText color={props.disableSave ? 'disabled' : 'primary'}>
-                    Save
-                </MyText>
-            </Pressable>
-        </>
     );
 };
 
