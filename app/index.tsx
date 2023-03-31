@@ -1,5 +1,5 @@
-import dayjs from 'dayjs';
-import { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useMemo } from 'react';
 import {
     Dimensions,
     Pressable,
@@ -7,11 +7,15 @@ import {
     StyleSheet,
     View,
 } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
-import { useTasks } from '../api/useTasks';
-import { TaskItem, Text } from '../components';
-import { colors, spacing } from '../theme';
-import CreateTaskModal from './CreateTaskModal';
+import Svg, { Path } from 'react-native-svg';
+import { Task, Tasks } from '../src/api/types';
+import { useTasks } from '../src/api/useTasks';
+import { MyText, TaskItem } from '../src/components';
+import { MoreVerticalIcon } from '../src/components/Icons';
+import { ViewTaskModal } from '../src/components/ViewTaskModal';
+import CreateTaskModal from '../src/routes/CreateTaskModal';
+import useInboxStateReducer from '../src/routes/HomePage/useInboxStateReducer';
+import { colors, spacing } from '../src/theme';
 
 const windowDimensions = Dimensions.get('window');
 const footerMidSectionWidth = 54;
@@ -21,32 +25,30 @@ const footerHeight = footerMidSectionWidth;
 const addBtnRadius = footerMidSectionWidth / 2 - 2;
 
 export default function HomePage() {
-    const [createModalOpen, setCreateModalOpen] = useState(false);
-    const [createTaskModalKey, setCreateTaskModalKey] =
-        useState('createTaskModal-0');
+    const [{ dialogs }, dispatch] = useInboxStateReducer();
 
     const { data: tasks } = useTasks();
 
+    // Getst the viewing task given the ID and the task array
+    const viewTask = useMemo(() => {
+        return findTask(dialogs.viewTask.taskId, tasks);
+    }, [tasks, dialogs.viewTask.taskId]);
+
     const handlePlusButtonPress = () => {
-        setCreateModalOpen(true);
+        dispatch({ type: 'CREATE_TASK_OPEN' });
     };
 
     const handleCloseCreateTaskModal = () => {
-        const keyIndex = Number(createTaskModalKey.split('-')[1]);
-
-        setCreateTaskModalKey(`createTaskModal-${keyIndex + 1}`);
-        setCreateModalOpen(false);
+        dispatch({ type: 'CREATE_TASK_CLOSE' });
     };
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Inbox</Text>
-                <Svg fill={colors.icon} width="24" height="24">
-                    <Circle cx="12" cy="12" r="2" />
-                    <Circle cx="12" cy="5" r="2" />
-                    <Circle cx="12" cy="19" r="2" />
-                </Svg>
+                <MyText style={{ fontWeight: 'bold', fontSize: 20 }}>
+                    Inbox
+                </MyText>
+                <MoreVerticalIcon />
             </View>
             <ScrollView style={styles.main}>
                 {Array.isArray(tasks) && (
@@ -54,8 +56,13 @@ export default function HomePage() {
                         {tasks.map((task) => (
                             <TaskItem
                                 key={task.id}
-                                label={task.name}
-                                timestamp={task.due_date}
+                                task={task}
+                                onPress={(task) =>
+                                    dispatch({
+                                        type: 'VIEW_TASK_OPEN',
+                                        payload: task.id,
+                                    })
+                                }
                             />
                         ))}
                     </>
@@ -111,13 +118,27 @@ export default function HomePage() {
             </View>
 
             <CreateTaskModal
-                key={createTaskModalKey}
-                visible={createModalOpen}
+                key={dialogs.createTask.key}
+                visible={dialogs.createTask.open}
                 onClose={handleCloseCreateTaskModal}
+            />
+
+            <ViewTaskModal
+                key={dialogs.viewTask.key}
+                visible={dialogs.viewTask.open}
+                task={viewTask}
+                onClose={() => dispatch({ type: 'VIEW_TASK_CLOSE' })}
             />
         </View>
     );
 }
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const ClearCache = () => (
+    <Pressable onPress={() => AsyncStorage.clear()}>
+        <MyText>Clear Cache</MyText>
+    </Pressable>
+);
 
 const styles = StyleSheet.create({
     container: {
@@ -165,11 +186,22 @@ const styles = StyleSheet.create({
     },
 });
 
-const testDates = {
-    pastWeek: dayjs().subtract(1, 'week').unix(),
-    yesterday: dayjs().subtract(1, 'day').unix(),
-    today: dayjs().unix(),
-    tomorrow: dayjs().add(1, 'day').unix(),
-    futureClose: dayjs().add(2, 'day').unix(),
-    nextYear: dayjs().add(1, 'week').add(1, 'year').unix(),
-};
+/**
+ * Getst the viewing task given the ID and the task array
+ */
+function findTask(
+    taskId: Task['id'] | null,
+    tasks: Tasks | undefined
+): Task | null {
+    if (!tasks || !taskId) {
+        return null;
+    }
+
+    const task = tasks.find((el) => el.id === taskId);
+
+    if (!task) {
+        return null;
+    }
+
+    return task;
+}

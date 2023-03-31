@@ -1,47 +1,37 @@
-import { StyleSheet, View } from 'react-native';
-import { spacing } from '../../theme';
-import { getTimestampInfo } from '../../utils/dateTime';
-import { Checkbox, CheckboxProps } from '../Checkbox';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Task } from '../../api/types';
+import { colors, spacing } from '../../theme';
+import { Checkbox } from '../Checkbox';
 import { Divider } from '../Divider';
-import { CalendarIcon } from '../Icons';
-import { Text } from '../Text';
+import { TaskDueDate } from '../TaskDueDate';
 
 export type TaskItemProps = {
     /**
-     * Todo due date, in Unix timestamp
+     * Task information
      */
-    timestamp: number | null;
-} & CheckboxProps;
+    task: Task;
+    /**
+     * Action called when the task item is pressed
+     */
+    onPress?: (task: Task) => void;
+};
 
 const TaskItem: React.FC<TaskItemProps> = (props) => {
-    const { timestamp, ...checkboxProps } = props;
-
-    const timestampInfo = getTimestampInfo(timestamp);
+    const { task, onPress } = props;
 
     return (
-        <View>
+        <Pressable
+            onPress={() => onPress?.(task)}
+            android_ripple={{ color: colors.background, foreground: true }}
+        >
             <View style={styles.checkboxContainer}>
-                <Checkbox {...checkboxProps} />
-                {!!timestampInfo && (
-                    <View style={styles.dateContainer}>
-                        <CalendarIcon
-                            fill={timestampInfo.color}
-                            width="17"
-                            height="17"
-                        />
-                        <Text
-                            style={[
-                                styles.dateLabel,
-                                { color: timestampInfo.color },
-                            ]}
-                        >
-                            {timestampInfo.label}
-                        </Text>
-                    </View>
-                )}
+                <Checkbox label={task.name} checked={task.completed} />
+                <View style={styles.dueDateContainer}>
+                    <TaskDueDate dueDate={task.due_date} />
+                </View>
             </View>
             <Divider />
-        </View>
+        </Pressable>
     );
 };
 
@@ -49,9 +39,7 @@ const styles = StyleSheet.create({
     checkboxContainer: {
         marginVertical: spacing(4),
     },
-    dateContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    dueDateContainer: {
         marginLeft: 32,
         marginTop: spacing(1),
     },
