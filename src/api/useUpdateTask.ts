@@ -4,7 +4,7 @@ import { queryClient } from './queryClient';
 import type { Task, Tasks } from './types';
 
 type UpdateTaskArgs = Pick<Task, 'id'> &
-    Partial<Pick<Task, 'name' | 'due_date'>>;
+    Partial<Pick<Task, 'name' | 'due_date' | 'description'>>;
 
 const useUpdateTask = () => {
     return useMutation<unknown, unknown, UpdateTaskArgs>({

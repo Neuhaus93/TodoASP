@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     Keyboard,
     Modal,
@@ -6,8 +6,8 @@ import {
     Pressable,
     StyleSheet,
     TextInput,
-    useWindowDimensions,
     View,
+    useWindowDimensions,
 } from 'react-native';
 import Animated, {
     Easing,
@@ -20,7 +20,12 @@ import { useUpdateTask } from '../../api/useUpdateTask';
 import { colors, spacing } from '../../theme';
 import { Backdrop } from '../Backdrop';
 import { Checkbox } from '../Checkbox';
-import { ArrowBackIcon, InboxIcon, MoreVerticalIcon } from '../Icons';
+import {
+    ArrowBackIcon,
+    DescriptionIcon,
+    InboxIcon,
+    MoreVerticalIcon,
+} from '../Icons';
 import { MyText } from '../MyText';
 import { TaskDueDate } from '../TaskDueDate';
 
@@ -39,23 +44,30 @@ const INITIAL_HEIGHT = 200;
 
 const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
     const { task, visible, onClose } = props;
-    const inputRef = useRef<TextInput>(null);
     const { height: windowHeight } = useWindowDimensions();
     const [editView, setEditView] = useState(false);
     const [viewExpanded, setViewExpanded] = useState(false);
-    const [taskName, setTaskName] = useState(task?.name || '');
+    const [taskName, setTaskName] = useState(task?.name ?? '');
+    const [taskDescription, setTaskDescription] = useState(
+        task?.description ?? ''
+    );
 
     const disableSave = useMemo(() => {
+        // No task name provided
         if (taskName.length === 0) {
             return true;
         }
 
-        if (task?.name === taskName) {
+        // Task name has not changed
+        if (
+            task?.name === taskName &&
+            (task?.description ?? '') === taskDescription
+        ) {
             return true;
         }
 
         return false;
-    }, [task?.name, taskName]);
+    }, [task, taskName, taskDescription]);
 
     const sharedHeight = useSharedValue(INITIAL_HEIGHT);
 
@@ -73,6 +85,9 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
         setViewExpanded(true);
     };
 
+    /**
+     * Handles saving the changes
+     */
     const handleUpdateTask = () => {
         if (!task || disableSave) {
             return;
@@ -81,7 +96,14 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
         mutate({
             id: task.id,
             name: taskName.trim(),
+            description: taskDescription.trim() || null,
         });
+
+        // Trim state values
+        setTaskName(taskName.trim());
+        setTaskDescription(taskDescription.trim());
+
+        // Go back to view modal
         setEditView(false);
     };
 
@@ -176,8 +198,35 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
                             checked={task.completed}
                             editable
                             onInputFocus={() => setEditView(true)}
-                            inputRef={inputRef}
                         />
+
+                        {(editView || task?.description) && (
+                            <View
+                                style={{
+                                    marginTop: spacing(3.5),
+                                    marginRight: spacing(2),
+                                    flexDirection: 'row',
+                                }}
+                            >
+                                <DescriptionIcon
+                                    style={{ marginTop: spacing(0.5) }}
+                                />
+                                <TextInput
+                                    multiline
+                                    value={taskDescription}
+                                    onChangeText={setTaskDescription}
+                                    maxLength={200}
+                                    placeholder="Description"
+                                    defaultValue={task?.description || ''}
+                                    onFocus={() => setEditView(true)}
+                                    style={{
+                                        marginLeft: spacing(2),
+                                        width: '100%',
+                                        flexShrink: 1,
+                                    }}
+                                />
+                            </View>
+                        )}
 
                         {!editView && (
                             <View style={styles.dueDateContainer}>
