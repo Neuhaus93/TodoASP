@@ -23,7 +23,7 @@ type Action =
     | { type: 'VIEW_TASK_OPEN'; payload: Task['id'] }
     | { type: 'VIEW_TASK_CLOSE' };
 
-const useInboxStateReducer = () => {
+export const useInboxStateReducer = () => {
     return useReducer(
         produce((draft: State, action: Action) => {
             switch (action.type) {
@@ -66,5 +66,3 @@ function updateValue(value: string): string {
 
     return [id, Number(keyIndex) + 1].join('-');
 }
-
-export default useInboxStateReducer;
