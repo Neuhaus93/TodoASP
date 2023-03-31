@@ -5,7 +5,7 @@ import { getCurrentTimestamp } from '../utils/dateTime';
 import { queryClient } from './queryClient';
 import type { Task, Tasks } from './types';
 
-type CreateTaskArgs = Pick<Task, 'name' | 'due_date'>;
+type CreateTaskArgs = Pick<Task, 'name' | 'due_date' | 'description'>;
 
 const useCreateTask = () => {
     return useMutation<unknown, unknown, CreateTaskArgs>({

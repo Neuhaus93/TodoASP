@@ -28,6 +28,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
     const taskNameInputRef = useRef<TextInput>(null);
 
     const [taskName, setTaskName] = useState('');
+    const [taskDescription, setTaskDescription] = useState('');
     const [noDate, setNoDate] = useState(true);
     const [date, setDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
@@ -47,7 +48,9 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
     }, [noDate, date]);
 
     const onShowModal = () => {
-        taskNameInputRef.current?.focus();
+        setTimeout(() => {
+            taskNameInputRef.current?.focus();
+        }, 20);
     };
 
     const handleDateChange: DatePickerOptions['onChange'] = (event, date) => {
@@ -67,6 +70,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
     const handleTaskCreate = () => {
         mutate({
             name: taskName,
+            description: taskDescription ? taskDescription : null,
             due_date: noDate || !date ? null : getDateTimestamp(date),
         });
         onClose();
@@ -89,6 +93,16 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
                             placeholder="Task name"
                             value={taskName}
                             onChangeText={setTaskName}
+                        />
+                        <TextInput
+                            // ref={taskNameInputRef}
+                            multiline
+                            numberOfLines={1}
+                            maxLength={200}
+                            style={{ marginTop: spacing(3), fontSize: 18 }}
+                            placeholder="Description"
+                            value={taskDescription}
+                            onChangeText={setTaskDescription}
                         />
                         <View
                             style={{
