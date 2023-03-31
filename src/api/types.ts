@@ -7,6 +7,8 @@ export type Task = {
     description: string | null;
     /** Due date of the task, in unix timestamp */
     due_date: number | null;
+    /** Task priority. Priority 4 means no priority */
+    priority: 1 | 2 | 3 | 4;
     /** Boolean indicating if the task is completed or not */
     completed: boolean;
     /** Unix timestamp indicating when the task was completed, if it is completed */

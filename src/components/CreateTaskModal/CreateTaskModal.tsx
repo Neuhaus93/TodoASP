@@ -75,6 +75,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
             name: taskName,
             description: taskDescription ? taskDescription : null,
             due_date: noDate || !date ? null : getDateTimestamp(date),
+            priority: 4,
         });
         onClose();
     };
