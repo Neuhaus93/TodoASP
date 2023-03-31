@@ -1,19 +1,22 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+    Keyboard,
     Modal,
     ModalProps,
     Pressable,
     StyleSheet,
+    TextInput,
     useWindowDimensions,
     View,
 } from 'react-native';
 import Animated, {
     Easing,
-    useAnimatedStyle,
+    runOnJS,
     useSharedValue,
     withTiming,
 } from 'react-native-reanimated';
 import { Task } from '../../api/types';
+import { useUpdateTask } from '../../api/useUpdateTask';
 import { colors, spacing } from '../../theme';
 import { Backdrop } from '../Backdrop';
 import { Checkbox } from '../Checkbox';
@@ -36,24 +39,85 @@ const INITIAL_HEIGHT = 200;
 
 const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
     const { task, visible, onClose } = props;
+    const inputRef = useRef<TextInput>(null);
     const { height: windowHeight } = useWindowDimensions();
     const [editView, setEditView] = useState(false);
+    const [viewExpanded, setViewExpanded] = useState(false);
+    const [taskName, setTaskName] = useState(task?.name || '');
+
+    const disableSave = useMemo(() => {
+        if (taskName.length === 0) {
+            return true;
+        }
+
+        if (task?.name === taskName) {
+            return true;
+        }
+
+        return false;
+    }, [task?.name, taskName]);
 
     const sharedHeight = useSharedValue(INITIAL_HEIGHT);
-    const animatedStyles = useAnimatedStyle(() => {
-        return {
-            height: sharedHeight.value,
-        };
-    });
-    const expanded = editView || sharedHeight.value === windowHeight;
+
+    const { mutate } = useUpdateTask();
+
+    // TODO: Make the animation work well in the future. Hard to delay the keyboard opening.
+    // const animatedStyles = useAnimatedStyle(() => {
+    //     return { height: sharedHeight.value };
+    // });
+
+    /**
+     * Helper function to expand the modal
+     */
+    const updateViewExpanded = () => {
+        setViewExpanded(true);
+    };
+
+    const handleUpdateTask = () => {
+        if (!task || disableSave) {
+            return;
+        }
+
+        mutate({
+            id: task.id,
+            name: taskName.trim(),
+        });
+        setEditView(false);
+    };
 
     useEffect(() => {
-        if (editView) {
-            sharedHeight.value = withTiming(windowHeight, {
-                duration: 400,
-                easing: Easing.out(Easing.exp),
-            });
+        if (editView && !viewExpanded) {
+            sharedHeight.value = withTiming(
+                windowHeight,
+                {
+                    duration: 400,
+                    easing: Easing.out(Easing.exp),
+                },
+                (isFinished) => {
+                    if (isFinished) {
+                        runOnJS(updateViewExpanded)();
+                    }
+                }
+            );
         }
+
+        // Make sure to dismiss the keyboard if on "View"
+        if (!editView) {
+            Keyboard.dismiss();
+        }
+    }, [editView, sharedHeight, viewExpanded, windowHeight]);
+
+    // If the keyboard is dismissed on "Edit", return to the "View"
+    useEffect(() => {
+        const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+            if (editView) {
+                setEditView(false);
+            }
+        });
+
+        return () => {
+            hideSubscription.remove();
+        };
     }, [editView]);
 
     const handleRequestClose = () => {
@@ -77,16 +141,13 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
             onRequestClose={handleRequestClose}
         >
             <Backdrop onClose={onClose}>
-                <Pressable
-                    onPress={() => {
-                        setEditView(true);
-                    }}
-                >
+                <Pressable>
                     <Animated.View
                         style={[
                             styles.container,
-                            animatedStyles,
-                            expanded ? styles.containerExpanded : undefined,
+                            viewExpanded ? { height: '100%' } : undefined,
+                            // viewExpanded ? { height: '100%' } : animatedStyles,
+                            viewExpanded ? styles.containerExpanded : undefined,
                         ]}
                     >
                         <View
@@ -98,13 +159,25 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
                             }}
                         >
                             {editView ? (
-                                <EditHeader onBack={() => setEditView(false)} />
+                                <EditHeader
+                                    disableSave={disableSave}
+                                    onBack={() => setEditView(false)}
+                                    onSave={handleUpdateTask}
+                                />
                             ) : (
                                 <ViewHeader />
                             )}
                         </View>
 
-                        <Checkbox label={task.name} checked={task.completed} />
+                        <Checkbox
+                            label={taskName}
+                            value={taskName}
+                            onChangeText={setTaskName}
+                            checked={task.completed}
+                            editable
+                            onInputFocus={() => setEditView(true)}
+                            inputRef={inputRef}
+                        />
 
                         {!editView && (
                             <View style={styles.dueDateContainer}>
@@ -134,7 +207,8 @@ const ViewHeader = () => {
             >
                 <InboxIcon fill={colors.inbox} width="16" height="16" />
                 <MyText
-                    style={{ color: colors.icon, marginLeft: 4 + spacing(2) }}
+                    color="secondary"
+                    style={{ marginLeft: 4 + spacing(2) }}
                 >
                     Inbox
                 </MyText>
@@ -145,7 +219,11 @@ const ViewHeader = () => {
     );
 };
 
-const EditHeader: React.FC<{ onBack: () => void }> = (props) => {
+const EditHeader: React.FC<{
+    onBack: () => void;
+    disableSave: boolean;
+    onSave: () => void;
+}> = (props) => {
     return (
         <>
             <View
@@ -159,7 +237,11 @@ const EditHeader: React.FC<{ onBack: () => void }> = (props) => {
                 </Pressable>
                 <MyText style={{ marginLeft: spacing(2) }}>Edit task</MyText>
             </View>
-            <MyText>Save</MyText>
+            <Pressable onPress={props.onSave} disabled={props.disableSave}>
+                <MyText color={props.disableSave ? 'disabled' : 'primary'}>
+                    Save
+                </MyText>
+            </Pressable>
         </>
     );
 };

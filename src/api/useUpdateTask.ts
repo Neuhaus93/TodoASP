@@ -1,14 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation } from '@tanstack/react-query';
-import uuid from 'react-native-uuid';
-import { getCurrentTimestamp } from '../utils/dateTime';
 import { queryClient } from './queryClient';
 import type { Task, Tasks } from './types';
 
-type CreateTaskArgs = Pick<Task, 'name' | 'due_date'>;
+type UpdateTaskArgs = Pick<Task, 'id'> &
+    Partial<Pick<Task, 'name' | 'due_date'>>;
 
-const useCreateTask = () => {
-    return useMutation<unknown, unknown, CreateTaskArgs>({
+const useUpdateTask = () => {
+    return useMutation<unknown, unknown, UpdateTaskArgs>({
         mutationFn: async () => {
             // Since we are using onMutate to optimistically update the cache, which runs
             // BEFORE the mutation function itself, we don't need to add it again in this case
@@ -20,9 +19,7 @@ const useCreateTask = () => {
                 console.log(e);
             }
         },
-        onMutate: async (task) => {
-            const newTask = buildFinalTask(task);
-
+        onMutate: async (updatedTask) => {
             // Cancel any outgoing refetches
             // (so they don't overwrite our optimistic update)
             await queryClient.cancelQueries({ queryKey: ['tasks'] });
@@ -31,10 +28,17 @@ const useCreateTask = () => {
             const previousTasks = queryClient.getQueryData<Tasks>(['tasks']);
 
             // Optimistically update to the new value
-            queryClient.setQueryData<Tasks>(['tasks'], (old) => [
-                ...(old || []),
-                newTask,
-            ]);
+            queryClient.setQueryData<Tasks>(['tasks'], (old) => {
+                const arr = old ?? [];
+
+                return arr.map((task) => {
+                    if (task.id === updatedTask.id) {
+                        return { ...task, ...updatedTask };
+                    }
+
+                    return task;
+                });
+            });
 
             // Return a context object with the snapshotted value
             return { previousTasks };
@@ -47,14 +51,4 @@ const useCreateTask = () => {
     });
 };
 
-function buildFinalTask(partialTask: CreateTaskArgs): Task {
-    return {
-        ...partialTask,
-        id: uuid.v4() as string,
-        completed: false,
-        completed_at: null,
-        created_at: getCurrentTimestamp(),
-    };
-}
-
-export { useCreateTask };
+export { useUpdateTask };

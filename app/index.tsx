@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useMemo } from 'react';
 import {
     Dimensions,
     Pressable,
@@ -6,6 +8,7 @@ import {
     View,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import { Task, Tasks } from '../src/api/types';
 import { useTasks } from '../src/api/useTasks';
 import { MyText, TaskItem } from '../src/components';
 import { MoreVerticalIcon } from '../src/components/Icons';
@@ -25,6 +28,11 @@ export default function HomePage() {
     const [{ dialogs }, dispatch] = useInboxStateReducer();
 
     const { data: tasks } = useTasks();
+
+    // Getst the viewing task given the ID and the task array
+    const viewTask = useMemo(() => {
+        return findTask(dialogs.viewTask.taskId, tasks);
+    }, [tasks, dialogs.viewTask.taskId]);
 
     const handlePlusButtonPress = () => {
         dispatch({ type: 'CREATE_TASK_OPEN' });
@@ -52,7 +60,7 @@ export default function HomePage() {
                                 onPress={(task) =>
                                     dispatch({
                                         type: 'VIEW_TASK_OPEN',
-                                        payload: task,
+                                        payload: task.id,
                                     })
                                 }
                             />
@@ -118,12 +126,19 @@ export default function HomePage() {
             <ViewTaskModal
                 key={dialogs.viewTask.key}
                 visible={dialogs.viewTask.open}
-                task={dialogs.viewTask.task}
+                task={viewTask}
                 onClose={() => dispatch({ type: 'VIEW_TASK_CLOSE' })}
             />
         </View>
     );
 }
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const ClearCache = () => (
+    <Pressable onPress={() => AsyncStorage.clear()}>
+        <MyText>Clear Cache</MyText>
+    </Pressable>
+);
 
 const styles = StyleSheet.create({
     container: {
@@ -170,3 +185,23 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
 });
+
+/**
+ * Getst the viewing task given the ID and the task array
+ */
+function findTask(
+    taskId: Task['id'] | null,
+    tasks: Tasks | undefined
+): Task | null {
+    if (!tasks || !taskId) {
+        return null;
+    }
+
+    const task = tasks.find((el) => el.id === taskId);
+
+    if (!task) {
+        return null;
+    }
+
+    return task;
+}

@@ -3,25 +3,32 @@ import {
     Text as BaseText,
     TextProps as BaseTextProps,
 } from 'react-native';
+import { colors } from '../../theme';
 
-export type MyTextProps = {} & BaseTextProps;
+export type MyTextProps = {
+    /**
+     * Color of the text
+     */
+    color?: keyof (typeof colors)['text'];
+} & BaseTextProps;
 
 const MyText: React.FC<MyTextProps> = (props) => {
-    const { ...baseTextProps } = props;
+    const { color = 'primary', style, ...baseTextProps } = props;
 
     return (
         <BaseText
             {...baseTextProps}
-            style={[styles.root, baseTextProps.style]}
+            style={[styles.root, { color: getColorValue(color) }, style]}
         />
     );
 };
 
 const styles = StyleSheet.create({
-    root: {
-        // fontFamily:
-        //     '-apple-system,BlinkMacSystemFont, Segoe UI ,Roboto, Apple Color Emoji ,Helvetica,Arial,sans-serif, Segoe UI Emoji, Segoe UI Symbol',
-    },
+    root: {},
 });
+
+function getColorValue(color: NonNullable<MyTextProps['color']>): string {
+    return colors.text[color];
+}
 
 export default MyText;
