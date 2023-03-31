@@ -1,7 +1,7 @@
 import DateTimePicker, {
     DatePickerOptions,
 } from '@react-native-community/datetimepicker';
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import {
     Modal,
     ModalProps,
@@ -11,10 +11,11 @@ import {
     View,
 } from 'react-native';
 import { useCreateTask } from '../api/useCreateTask';
-import { Backdrop, Divider, MyText } from '../components';
-import { CalendarIcon, SendIcon, TrashIcon } from '../components/Icons';
+import { Backdrop, Divider } from '../components';
+import { SendIcon, TrashIcon } from '../components/Icons';
+import { TaskDueDate } from '../components/TaskDueDate';
 import { colors, spacing } from '../theme';
-import { getDateTimestamp, getTimestampInfo } from '../utils/dateTime';
+import { getDateTimestamp } from '../utils/dateTime';
 
 export type CreateTaskModalProps = {
     /**
@@ -35,17 +36,6 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
     const saveDisabled = taskName.length === 0;
 
     const { mutate } = useCreateTask();
-
-    const dateInfo: ReturnType<typeof getTimestampInfo> = useMemo(() => {
-        if (noDate || !date) {
-            return {
-                label: 'Due Date',
-                color: colors.date.future,
-            };
-        }
-
-        return getTimestampInfo(getDateTimestamp(date));
-    }, [noDate, date]);
 
     const onShowModal = () => {
         setTimeout(() => {
@@ -115,19 +105,11 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
                                 style={styles.dueDateBtn}
                                 onPress={() => setShowDatePicker(true)}
                             >
-                                <CalendarIcon
-                                    width="16"
-                                    height="16"
-                                    fill={dateInfo?.color}
+                                <TaskDueDate
+                                    dueDate={
+                                        noDate ? null : getDateTimestamp(date)
+                                    }
                                 />
-                                <MyText
-                                    style={{
-                                        marginLeft: spacing(1),
-                                        color: dateInfo?.color,
-                                    }}
-                                >
-                                    {dateInfo?.label}
-                                </MyText>
                             </Pressable>
 
                             {!noDate && (
@@ -135,11 +117,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
                                     style={styles.deleteButton}
                                     onPress={handleDateDelete}
                                 >
-                                    <TrashIcon
-                                        width="20"
-                                        height="20"
-                                        fill={colors.icon}
-                                    />
+                                    <TrashIcon width="20" height="20" />
                                 </Pressable>
                             )}
                         </View>

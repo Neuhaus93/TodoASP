@@ -36,7 +36,7 @@ const TaskItem: React.FC<TaskItemProps> = (props) => {
                     </MyText>
                 )}
                 <View style={styles.taskSubInfo}>
-                    <TaskDueDate dueDate={task.due_date} />
+                    <TaskDueDate hideIfNoDueDate dueDate={task.due_date} />
                 </View>
             </View>
             <Divider />
