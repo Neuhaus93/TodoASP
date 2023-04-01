@@ -13,6 +13,7 @@ import { Task } from '../../api/types';
 import { useCreateTask } from '../../api/useCreateTask';
 import { colors, spacing } from '../../theme';
 import { getDateTimestamp } from '../../utils/dateTime';
+import { getPriorityInfo } from '../../utils/priority';
 import { BackdropModal } from '../Backdrop';
 import { Button } from '../Button';
 import { Divider } from '../Divider';
@@ -152,14 +153,18 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
                                     color: priorityInfo.color,
                                 }}
                             >
-                                {priorityInfo.label}
+                                {priorityInfo.labelShort === 'P4'
+                                    ? 'Priority'
+                                    : priorityInfo.labelShort}
                             </MyText>
                         </Button>
                     </View>
                 </View>
+
                 <View style={{ marginVertical: spacing(3) }}>
                     <Divider />
                 </View>
+
                 <View>
                     <Pressable
                         disabled={saveDisabled}
@@ -225,30 +230,5 @@ const styles = StyleSheet.create({
         marginLeft: spacing(2),
     },
 });
-
-function getPriorityInfo(priority: Task['priority']) {
-    switch (priority) {
-        case 1:
-            return {
-                label: 'P1',
-                color: colors.priority.high.main,
-            };
-        case 2:
-            return {
-                label: 'P2',
-                color: colors.priority.medium.main,
-            };
-        case 3:
-            return {
-                label: 'P3',
-                color: colors.priority.low.main,
-            };
-        case 4:
-            return {
-                label: 'Priority',
-                color: colors.icon,
-            };
-    }
-}
 
 export default CreateTaskModal;

@@ -10,14 +10,20 @@ export type BackdropProps = PropsWithChildren<{
 }>;
 
 export type BackdropModalProps = PropsWithChildren<
-    {} & Pick<
+    {
+        /**
+         * Whether the modal is expanded (full height) or not
+         * @default {false}
+         */
+        expanded?: boolean;
+    } & Pick<
         ModalProps,
         'visible' | 'onShow' | 'onRequestClose' | 'animationType'
     >
 >;
 
 export const BackdropModal: React.FC<BackdropModalProps> = (props) => {
-    const { animationType = 'fade' } = props;
+    const { animationType = 'fade', expanded } = props;
 
     return (
         <Modal
@@ -28,7 +34,14 @@ export const BackdropModal: React.FC<BackdropModalProps> = (props) => {
             onRequestClose={props.onRequestClose}
         >
             <Pressable onPressOut={props.onRequestClose} style={styles.root}>
-                <Pressable style={styles.container}>{props.children}</Pressable>
+                <Pressable
+                    style={[
+                        styles.container,
+                        expanded ? styles.containerExpanded : undefined,
+                    ]}
+                >
+                    {props.children}
+                </Pressable>
             </Pressable>
         </Modal>
     );
@@ -51,6 +64,11 @@ const styles = StyleSheet.create({
         padding: spacing(4),
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
+    },
+    containerExpanded: {
+        height: '100%',
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
     },
 });
 

@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { Task } from '../../api/types';
 import { colors, spacing } from '../../theme';
+import { getPriorityInfo } from '../../utils/priority';
 import { BackdropModal } from '../Backdrop';
 import FlagIcon from '../Icons/FlagIcon';
 import { MyText } from '../MyText';
@@ -59,7 +60,7 @@ export const SelectPriorityModal: React.FC<SelectPriorityModalProps> = (
                         />
                     )}
                     numColumns={4}
-                    keyExtractor={(item) => item.label}
+                    keyExtractor={(item) => String(item.value)}
                 />
             </View>
         </BackdropModal>
@@ -72,7 +73,7 @@ const Item: React.FC<{
     onSelect: SelectPriorityModalProps['onPriorityChange'];
 }> = ({ item, priority, onSelect }) => (
     <Pressable
-        onPress={() => onSelect(item.priority)}
+        onPress={() => onSelect(item.value)}
         style={{
             borderWidth: 1,
             borderColor: colors.disabled,
@@ -82,43 +83,16 @@ const Item: React.FC<{
             alignItems: 'center',
             justifyContent: 'center',
             height: 75,
-            marginRight: item.label !== 'P4' ? spacing(3) : 0,
+            marginRight: item.labelShort !== 'P4' ? spacing(3) : 0,
             backgroundColor:
-                priority === item.priority ? item.selectedBg : undefined,
+                priority === item.value ? item.colorSecondary : undefined,
         }}
     >
-        <FlagIcon fill={item.fill} outline={item.outline} />
-        <MyText style={{ marginTop: spacing(0.5) }}>{item.priority}</MyText>
+        <FlagIcon fill={item.color} outline={item.flagOutline} />
+        <MyText style={{ marginTop: spacing(0.5) }}>{item.labelShort}</MyText>
     </Pressable>
 );
 
-const itemsData = [
-    {
-        priority: 1 as Task['priority'],
-        label: 'P1',
-        fill: colors.priority.high.main,
-        selectedBg: colors.priority.high.fill,
-        outline: false,
-    },
-    {
-        priority: 2 as Task['priority'],
-        label: 'P2',
-        fill: colors.priority.medium.main,
-        selectedBg: colors.priority.medium.fill,
-        outline: false,
-    },
-    {
-        priority: 3 as Task['priority'],
-        label: 'P3',
-        fill: colors.priority.low.main,
-        selectedBg: colors.priority.low.fill,
-        outline: false,
-    },
-    {
-        priority: 4 as Task['priority'],
-        label: 'P4',
-        fill: colors.priority.none.main,
-        selectedBg: colors.priority.none.fill,
-        outline: true,
-    },
-];
+const itemsData = ([1, 2, 3, 4] as Task['priority'][]).map((item) =>
+    getPriorityInfo(item)
+);

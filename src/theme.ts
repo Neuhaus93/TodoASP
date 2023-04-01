@@ -10,6 +10,9 @@ export const colors = {
     menus: '#3D3D3D',
     disabled: '#E5E5E5',
     inbox: '#246fe0',
+    button: {
+        softBg: '#F2F2F2',
+    },
     date: {
         past: '#D1453B',
         today: '#058527',

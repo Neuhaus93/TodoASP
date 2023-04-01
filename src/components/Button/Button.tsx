@@ -5,7 +5,7 @@ export type ButtonProps = {
     /**
      * Button variant
      */
-    variant?: 'outlined';
+    variant?: 'outlined' | 'soft';
 } & PressableProps;
 
 const Button: React.FC<ButtonProps> = (props) => {
@@ -19,12 +19,17 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         alignSelf: 'flex-start',
+        borderRadius: 8,
+        padding: 8,
     },
     outlined: {
         borderWidth: 1,
         borderColor: colors.divider,
-        borderRadius: 8,
-        padding: 8,
+    },
+    soft: {
+        borderWidth: 1,
+        borderColor: colors.button.softBg,
+        backgroundColor: colors.button.softBg,
     },
 });
 
@@ -41,8 +46,14 @@ function getStyles(args: Pick<ButtonProps, 'variant' | 'style'>) {
         }
     }
 
-    if (args.variant === 'outlined') {
-        stylesArray.push(styles.outlined);
+    switch (args.variant) {
+        case 'outlined':
+            stylesArray.push(styles.outlined);
+            break;
+
+        case 'soft':
+            stylesArray.push(styles.soft);
+            break;
     }
 
     return stylesArray;
