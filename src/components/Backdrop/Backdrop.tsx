@@ -1,5 +1,6 @@
 import React, { PropsWithChildren } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { Modal, ModalProps, Pressable, StyleSheet } from 'react-native';
+import { colors, spacing } from '../../theme';
 
 export type BackdropProps = PropsWithChildren<{
     /**
@@ -7,6 +8,44 @@ export type BackdropProps = PropsWithChildren<{
      */
     onClose: () => void;
 }>;
+
+export type BackdropModalProps = PropsWithChildren<
+    {
+        /**
+         * Whether the modal is expanded (full height) or not
+         * @default {false}
+         */
+        expanded?: boolean;
+    } & Pick<
+        ModalProps,
+        'visible' | 'onShow' | 'onRequestClose' | 'animationType'
+    >
+>;
+
+export const BackdropModal: React.FC<BackdropModalProps> = (props) => {
+    const { animationType = 'fade', expanded } = props;
+
+    return (
+        <Modal
+            visible={props.visible}
+            transparent={true}
+            animationType={animationType}
+            onShow={props.onShow}
+            onRequestClose={props.onRequestClose}
+        >
+            <Pressable onPressOut={props.onRequestClose} style={styles.root}>
+                <Pressable
+                    style={[
+                        styles.container,
+                        expanded ? styles.containerExpanded : undefined,
+                    ]}
+                >
+                    {props.children}
+                </Pressable>
+            </Pressable>
+        </Modal>
+    );
+};
 
 const Backdrop: React.FC<BackdropProps> = ({ children, onClose }) => (
     <Pressable onPressOut={onClose} style={styles.root}>
@@ -19,6 +58,17 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'flex-end',
         backgroundColor: 'rgba(0,0,0,0.4)',
+    },
+    container: {
+        backgroundColor: colors.background,
+        padding: spacing(4),
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
+    },
+    containerExpanded: {
+        height: '100%',
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
     },
 });
 

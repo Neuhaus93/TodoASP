@@ -1,8 +1,9 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Task } from '../../api/types';
 import { spacing } from '../../theme';
 import { getTimestampInfo } from '../../utils/dateTime';
 import { CalendarIcon } from '../Icons';
+import { MyText } from '../MyText';
 
 export type TaskDueDateProps = {
     /**
@@ -48,7 +49,7 @@ const TaskDueDate: React.FC<TaskDueDateProps> = (props) => {
                 width={iconSize}
                 height={iconSize}
             />
-            <Text
+            <MyText
                 style={{
                     fontSize,
                     color: fontColor,
@@ -56,7 +57,7 @@ const TaskDueDate: React.FC<TaskDueDateProps> = (props) => {
                 }}
             >
                 {timestampInfo.label}
-            </Text>
+            </MyText>
         </View>
     );
 };

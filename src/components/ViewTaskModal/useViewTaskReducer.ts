@@ -7,8 +7,10 @@ const getInitialState = (task: Task | null) => ({
         name: task?.name || '',
         description: task?.description || '',
         date: task?.due_date ? new Date(task.due_date * 1000) : null,
+        priority: task?.priority || 4,
     },
     showDatePicker: false,
+    showPriorityPicker: false,
     editView: false,
     viewExpanded: false,
 });
@@ -18,8 +20,10 @@ type Action =
     | { type: 'SET_NAME'; payload: string }
     | { type: 'SET_DESCRIPTION'; payload: string }
     | { type: 'SET_DATE'; payload: Date | null }
+    | { type: 'SET_PRIORITY'; payload: Task['priority'] }
     | { type: 'TASK_UPDATED' }
     | { type: 'SET_SHOW_DATE_PICKER'; payload: boolean }
+    | { type: 'SET_SHOW_PRIORITY_PICKER'; payload: boolean }
     | { type: 'SET_EDIT_VIEW'; payload: boolean }
     | { type: 'EXPAND_VIEW' };
 
@@ -39,6 +43,11 @@ export const useViewTaskReducer = (task: Task | null) => {
                     draft.values.date = action.payload;
                     break;
 
+                case 'SET_PRIORITY':
+                    draft.values.priority = action.payload;
+                    draft.showPriorityPicker = false;
+                    break;
+
                 case 'TASK_UPDATED':
                     draft.values.name = draft.values.name.trim();
                     draft.values.description = draft.values.description.trim();
@@ -47,6 +56,10 @@ export const useViewTaskReducer = (task: Task | null) => {
 
                 case 'SET_SHOW_DATE_PICKER':
                     draft.showDatePicker = action.payload;
+                    break;
+
+                case 'SET_SHOW_PRIORITY_PICKER':
+                    draft.showPriorityPicker = action.payload;
                     break;
 
                 case 'SET_EDIT_VIEW':

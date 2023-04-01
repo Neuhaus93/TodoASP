@@ -3,19 +3,24 @@ import DateTimePicker, {
 } from '@react-native-community/datetimepicker';
 import { useRef, useState } from 'react';
 import {
-    Modal,
     ModalProps,
     Pressable,
     StyleSheet,
     TextInput,
     View,
 } from 'react-native';
+import { Task } from '../../api/types';
 import { useCreateTask } from '../../api/useCreateTask';
 import { colors, spacing } from '../../theme';
 import { getDateTimestamp } from '../../utils/dateTime';
-import { Backdrop } from '../Backdrop';
+import { getPriorityInfo } from '../../utils/priority';
+import { BackdropModal } from '../Backdrop';
+import { Button } from '../Button';
 import { Divider } from '../Divider';
 import { SendIcon, TrashIcon } from '../Icons';
+import FlagIcon from '../Icons/FlagIcon';
+import { MyText } from '../MyText';
+import { SelectPriorityModal } from '../SelectPriorityModal';
 import { TaskDueDate } from '../TaskDueDate';
 
 export type CreateTaskModalProps = {
@@ -31,12 +36,16 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
 
     const [taskName, setTaskName] = useState('');
     const [taskDescription, setTaskDescription] = useState('');
+    const [priority, setPriority] = useState<Task['priority']>(4);
     const [noDate, setNoDate] = useState(true);
     const [date, setDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [showPriorityPicker, setShowPriorityPicker] = useState(false);
     const saveDisabled = taskName.length === 0;
 
     const { mutate } = useCreateTask();
+
+    const priorityInfo = getPriorityInfo(priority);
 
     /**
      * Focus the task name input on opening the modal. Wait a bit to prevent if from not opening
@@ -75,96 +84,117 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = (props) => {
             name: taskName,
             description: taskDescription ? taskDescription : null,
             due_date: noDate || !date ? null : getDateTimestamp(date),
+            priority,
         });
         onClose();
     };
 
     return (
-        <Modal
-            visible={visible}
-            transparent={true}
-            animationType="fade"
-            onShow={onShowModal}
-            onRequestClose={onClose}
-        >
-            <Backdrop onClose={onClose}>
-                <Pressable style={styles.container}>
-                    <View>
-                        <TextInput
-                            ref={taskNameInputRef}
-                            style={{ fontSize: 20 }}
-                            placeholder="Task name"
-                            value={taskName}
-                            onChangeText={setTaskName}
-                        />
-                        <TextInput
-                            multiline
-                            numberOfLines={1}
-                            maxLength={200}
-                            style={{ marginTop: spacing(3), fontSize: 18 }}
-                            placeholder="Description"
-                            value={taskDescription}
-                            onChangeText={setTaskDescription}
-                        />
-                        <View
-                            style={{
-                                marginTop: spacing(4),
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}
-                        >
+        <>
+            <BackdropModal
+                visible={visible}
+                onShow={onShowModal}
+                onRequestClose={onClose}
+            >
+                <View>
+                    <TextInput
+                        ref={taskNameInputRef}
+                        style={{ fontSize: 20 }}
+                        placeholder="Task name"
+                        value={taskName}
+                        onChangeText={setTaskName}
+                    />
+                    <TextInput
+                        multiline
+                        numberOfLines={1}
+                        maxLength={200}
+                        style={{ marginTop: spacing(3), fontSize: 18 }}
+                        placeholder="Description"
+                        value={taskDescription}
+                        onChangeText={setTaskDescription}
+                    />
+                    <View
+                        style={{
+                            marginTop: spacing(4),
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Button onPress={() => setShowDatePicker(true)}>
+                            <TaskDueDate
+                                dueDate={noDate ? null : getDateTimestamp(date)}
+                            />
+                        </Button>
+
+                        {!noDate && (
                             <Pressable
-                                style={styles.dueDateBtn}
-                                onPress={() => setShowDatePicker(true)}
+                                style={styles.deleteButton}
+                                onPress={handleDateDelete}
                             >
-                                <TaskDueDate
-                                    dueDate={
-                                        noDate ? null : getDateTimestamp(date)
-                                    }
-                                />
+                                <TrashIcon width="20" height="20" />
                             </Pressable>
+                        )}
 
-                            {!noDate && (
-                                <Pressable
-                                    style={styles.deleteButton}
-                                    onPress={handleDateDelete}
-                                >
-                                    <TrashIcon width="20" height="20" />
-                                </Pressable>
-                            )}
-                        </View>
-                    </View>
-                    <View style={{ marginVertical: spacing(3) }}>
-                        <Divider />
-                    </View>
-                    <View>
-                        <Pressable
-                            disabled={saveDisabled}
-                            onPress={handleTaskCreate}
+                        <Button
+                            style={{ marginLeft: spacing(2) }}
+                            onPress={() => setShowPriorityPicker(true)}
                         >
-                            <View
-                                style={[
-                                    styles.iconButton,
-                                    saveDisabled
-                                        ? undefined
-                                        : styles.iconButtonActive,
-                                ]}
+                            <FlagIcon
+                                outline={priority === 4}
+                                width="17"
+                                height="17"
+                                fill={priorityInfo.color}
+                            />
+                            <MyText
+                                color="secondary"
+                                style={{
+                                    marginLeft: spacing(1),
+                                    fontSize: 12,
+                                    color: priorityInfo.color,
+                                }}
                             >
-                                <SendIcon
-                                    height="20"
-                                    width="20"
-                                    fill={'white'}
-                                />
-                            </View>
-                        </Pressable>
+                                {priorityInfo.labelShort === 'P4'
+                                    ? 'Priority'
+                                    : priorityInfo.labelShort}
+                            </MyText>
+                        </Button>
                     </View>
-                </Pressable>
-            </Backdrop>
+                </View>
 
-            {showDatePicker && (
-                <DateTimePicker value={date} onChange={handleDateChange} />
-            )}
-        </Modal>
+                <View style={{ marginVertical: spacing(3) }}>
+                    <Divider />
+                </View>
+
+                <View>
+                    <Pressable
+                        disabled={saveDisabled}
+                        onPress={handleTaskCreate}
+                    >
+                        <View
+                            style={[
+                                styles.iconButton,
+                                saveDisabled
+                                    ? undefined
+                                    : styles.iconButtonActive,
+                            ]}
+                        >
+                            <SendIcon height="20" width="20" fill={'white'} />
+                        </View>
+                    </Pressable>
+                </View>
+
+                {showDatePicker && (
+                    <DateTimePicker value={date} onChange={handleDateChange} />
+                )}
+            </BackdropModal>
+
+            <SelectPriorityModal
+                visible={showPriorityPicker}
+                onRequestClose={() => setShowPriorityPicker(false)}
+                priority={priority}
+                onPriorityChange={setPriority}
+            />
+        </>
     );
 };
 
