@@ -1,4 +1,4 @@
-import Backdrop, { BackdropProps } from './Backdrop';
+import Backdrop, { BackdropModal, BackdropProps } from './Backdrop';
 
 export type { BackdropProps };
-export { Backdrop };
+export { Backdrop, BackdropModal };

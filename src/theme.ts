@@ -17,6 +17,24 @@ export const colors = {
         futureClose: '#692FC2',
         future: '#808080',
     },
+    priority: {
+        high: {
+            main: '#D1453B',
+            fill: 'rgba(209,69,59,.1)',
+        },
+        medium: {
+            main: '#EB8909',
+            fill: 'rgba(235,137,9,.1)',
+        },
+        low: {
+            main: '#246FE0',
+            fill: 'rgba(36,111,224,.1)',
+        },
+        none: {
+            main: '#808080',
+            fill: '#F2F2F2',
+        },
+    },
 } as const;
 
 export const spacing = (value: number): number => value * 4;

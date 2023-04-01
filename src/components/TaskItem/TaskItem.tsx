@@ -26,7 +26,11 @@ const TaskItem: React.FC<TaskItemProps> = (props) => {
             android_ripple={{ color: colors.background, foreground: true }}
         >
             <View style={styles.checkboxContainer}>
-                <Checkbox label={task.name} checked={task.completed} />
+                <Checkbox
+                    label={task.name}
+                    checked={task.completed}
+                    priority={task.priority}
+                />
                 {task.description && (
                     <MyText
                         numberOfLines={1}
