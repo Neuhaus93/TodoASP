@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
     Dimensions,
     Pressable,
@@ -11,9 +11,8 @@ import Svg, { Path } from 'react-native-svg';
 import { Task, Tasks } from '../src/api/types';
 import { useTasks } from '../src/api/useTasks';
 import { useUpdateTask } from '../src/api/useUpdateTask';
-import { MyText, TaskItem } from '../src/components';
+import { Menu, MyText, TaskItem } from '../src/components';
 import { CreateTaskModal } from '../src/components/CreateTaskModal';
-import { MoreVerticalIcon } from '../src/components/Icons';
 import { ViewTaskModal } from '../src/components/ViewTaskModal';
 import { useInboxStateReducer } from '../src/hooks/reducers/useInboxStateReducer';
 import { colors, spacing } from '../src/theme';
@@ -27,9 +26,27 @@ const addBtnRadius = footerMidSectionWidth / 2 - 2;
 
 export default function HomePage() {
     const [{ dialogs }, dispatch] = useInboxStateReducer();
+    const [showCompletedTasks, setShowCompletedTasks] = useState(false);
 
-    const { data: tasks } = useTasks();
+    const { data: tasksData } = useTasks();
     const { mutate } = useUpdateTask();
+
+    // Filtered and sorted tasks
+    const tasks = useMemo(() => {
+        if (!Array.isArray(tasksData)) {
+            return [];
+        }
+
+        const res = tasksData.filter((task) => {
+            if (!showCompletedTasks) {
+                return !task.completed;
+            }
+
+            return true;
+        });
+
+        return res;
+    }, [tasksData, showCompletedTasks]);
 
     // Getst the viewing task given the ID and the task array
     const viewTask = useMemo(() => {
@@ -57,7 +74,29 @@ export default function HomePage() {
                 <MyText style={{ fontWeight: 'bold', fontSize: 20 }}>
                     Inbox
                 </MyText>
-                <MoreVerticalIcon />
+
+                <Menu>
+                    <Menu.MenuItem
+                        Icon={
+                            <Svg
+                                width="19"
+                                height="19"
+                                viewBox="0 0 416 416"
+                                strokeWidth="38"
+                                stroke={colors.icon}
+                            >
+                                <Path d="M 400,208 C 400,102 314,16 208,16 102,16 16,102 16,208 c 0,106 86,192 192,192 106,0 192,-86 192,-192 z" />
+                                <Path d="M 304,128 169.6,288 112,224" />
+                            </Svg>
+                        }
+                        onPress={() => {
+                            console.log('test');
+                            setShowCompletedTasks(!showCompletedTasks);
+                        }}
+                    >
+                        {showCompletedTasks ? 'Hide' : 'Show'} Completed Tasks
+                    </Menu.MenuItem>
+                </Menu>
             </View>
             <ScrollView style={styles.main}>
                 <ClearCache />

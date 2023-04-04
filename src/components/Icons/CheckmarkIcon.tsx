@@ -4,7 +4,10 @@ import { colors } from '../../theme';
 import type { IconProps } from './IconProps';
 
 const CheckmarkIcon: React.FC<
-    IconProps & { checked: boolean; priority: Task['priority'] }
+    IconProps & {
+        checked: boolean;
+        priority: Task['priority'];
+    }
 > = (props) => {
     const { checked, priority, ...rest } = props;
     const priorityColors = getPriorityColors(priority);
