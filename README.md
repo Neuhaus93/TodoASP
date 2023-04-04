@@ -14,12 +14,12 @@ This project is meant for studying and practicing mobile development. It will be
 
 -   [ ] Base Inbox page
 
-    -   [ ] Create task, with name, due date, description, and priority values
-    -   [ ] View & Edit tasks
-    -   [ ] Check tasks completed and uncompleted
+    -   [x] Create task, with name, due date, description, and priority values
+    -   [x] View & Edit tasks
+    -   [x] Check tasks completed and uncompleted
     -   [ ] Be able to toggle between seeing completed tasks and not seeing
     -   [ ] Delete task
-    -   [ ] At this point, all data should be persisted locally with AsyncStorage
+    -   [x] At this point, all data should be persisted locally with AsyncStorage
 
 -   [ ] Today page
 
