@@ -17,6 +17,7 @@ import Animated, {
     withTiming,
 } from 'react-native-reanimated';
 import { Task } from '../../api/types';
+import { useDeleteTask } from '../../api/useDeleteTask';
 import { useUpdateTask } from '../../api/useUpdateTask';
 import { spacing } from '../../theme';
 import { getDateTimestamp } from '../../utils/dateTime';
@@ -24,6 +25,7 @@ import { getPriorityInfo } from '../../utils/priority';
 import { BackdropModal } from '../Backdrop';
 import { Button } from '../Button';
 import { Checkbox } from '../Checkbox';
+import { ConfirmationModal } from '../ConfirmationModal/ConfirmationModal';
 import { DescriptionIcon, TrashIcon } from '../Icons';
 import FlagIcon from '../Icons/FlagIcon';
 import { MyText } from '../MyText';
@@ -54,6 +56,7 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
             values,
             showDatePicker,
             showPriorityPicker,
+            showDeleteConfirmation,
             editView,
             viewExpanded,
             disableSave,
@@ -64,7 +67,8 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
     const sharedHeight = useSharedValue(INITIAL_HEIGHT);
     const priorityInfo = getPriorityInfo(values.priority);
 
-    const { mutate } = useUpdateTask();
+    const { mutate: updateTask } = useUpdateTask();
+    const { mutate: deleteTask } = useDeleteTask();
 
     // TODO: Make the animation work well in the future. Hard to delay the keyboard opening.
     // const animatedStyles = useAnimatedStyle(() => {
@@ -87,11 +91,22 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
                 payload: date,
             });
 
-            mutate({
+            updateTask({
                 id: task.id,
                 due_date: getDateTimestamp(date),
             });
         }
+    };
+
+    const handleDeleteTask = () => {
+        if (!task) {
+            return null;
+        }
+
+        deleteTask(task.id);
+
+        // Close the view modal
+        onClose();
     };
 
     /**
@@ -99,7 +114,7 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
      */
     const handleDateDelete = () => {
         if (task) {
-            mutate({
+            updateTask({
                 id: task.id,
                 due_date: null,
             });
@@ -119,7 +134,7 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
             return;
         }
 
-        mutate({
+        updateTask({
             id: task.id,
             name: values.name.trim(),
             description: values.description.trim() || null,
@@ -137,7 +152,7 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
             return;
         }
 
-        mutate({
+        updateTask({
             id: task.id,
             priority: newPriority,
         });
@@ -154,7 +169,7 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
             return;
         }
 
-        mutate({
+        updateTask({
             id: task.id,
             completed: !task.completed,
         });
@@ -229,6 +244,12 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
                 <Animated.View>
                     <Header
                         task={task}
+                        onDeleteTask={() =>
+                            dispatch({
+                                type: 'SET_SHOW_DELETE_CONFIRMATION',
+                                payload: true,
+                            })
+                        }
                         editView={editView}
                         editHeaderProps={{
                             disableSave,
@@ -392,6 +413,19 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
                         payload: false,
                     })
                 }
+            />
+
+            <ConfirmationModal
+                visible={showDeleteConfirmation}
+                title="Delete task?"
+                description={`This will permanently delete "${task.name}" and can't be undone.`}
+                onDismiss={() =>
+                    dispatch({
+                        type: 'SET_SHOW_DELETE_CONFIRMATION',
+                        payload: false,
+                    })
+                }
+                onConfirm={handleDeleteTask}
             />
         </>
     );

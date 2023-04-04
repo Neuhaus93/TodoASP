@@ -16,6 +16,11 @@ export type BackdropModalProps = PropsWithChildren<
          * @default {false}
          */
         expanded?: boolean;
+        /**
+         * The position of the modal content
+         * @default {'bottom'}
+         */
+        position?: 'bottom' | 'center';
     } & Pick<
         ModalProps,
         'visible' | 'onShow' | 'onRequestClose' | 'animationType'
@@ -23,7 +28,7 @@ export type BackdropModalProps = PropsWithChildren<
 >;
 
 export const BackdropModal: React.FC<BackdropModalProps> = (props) => {
-    const { animationType = 'fade', expanded } = props;
+    const { animationType = 'fade', expanded, position = 'bottom' } = props;
 
     return (
         <Modal
@@ -33,11 +38,18 @@ export const BackdropModal: React.FC<BackdropModalProps> = (props) => {
             onShow={props.onShow}
             onRequestClose={props.onRequestClose}
         >
-            <Pressable onPressOut={props.onRequestClose} style={styles.root}>
+            <Pressable
+                onPressOut={props.onRequestClose}
+                style={[
+                    styles.root,
+                    position === 'center' ? styles.rootCentered : null,
+                ]}
+            >
                 <Pressable
                     style={[
                         styles.container,
-                        expanded ? styles.containerExpanded : undefined,
+                        expanded ? styles.containerExpanded : null,
+                        position === 'center' ? styles.containerCentered : null,
                     ]}
                 >
                     {props.children}
@@ -59,6 +71,10 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         backgroundColor: 'rgba(0,0,0,0.4)',
     },
+    rootCentered: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     container: {
         backgroundColor: colors.background,
         padding: spacing(4),
@@ -69,6 +85,13 @@ const styles = StyleSheet.create({
         height: '100%',
         borderTopLeftRadius: 0,
         borderTopRightRadius: 0,
+    },
+    containerCentered: {
+        maxWidth: '80%',
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8,
+        borderBottomLeftRadius: 8,
+        borderBottomRightRadius: 8,
     },
 });
 

@@ -15,6 +15,7 @@ import { MyText } from '../MyText';
 
 type HeaderProps = {
     task: Task;
+    onDeleteTask: () => void;
     editView: boolean;
     editHeaderProps: {
         onBack: () => void;
@@ -36,13 +37,19 @@ const Header: React.FC<HeaderProps> = (props) => {
             {props.editView ? (
                 <EditHeader {...props.editHeaderProps} />
             ) : (
-                <ViewHeader task={props.task} />
+                <ViewHeader
+                    task={props.task}
+                    onDeleteTask={props.onDeleteTask}
+                />
             )}
         </View>
     );
 };
 
-const ViewHeader = ({ task }: Pick<HeaderProps, 'task'>) => {
+const ViewHeader = ({
+    task,
+    onDeleteTask,
+}: Pick<HeaderProps, 'task' | 'onDeleteTask'>) => {
     const [visible, setVisible] = useState(false);
     const note = (() => {
         const format = (timestamp: number) => {
@@ -86,6 +93,10 @@ const ViewHeader = ({ task }: Pick<HeaderProps, 'task'>) => {
                     <MyText color="secondary">{note}</MyText>
                     <Divider marginVertical={spacing(4)} />
                     <Pressable
+                        onPress={() => {
+                            setVisible(false);
+                            onDeleteTask();
+                        }}
                         style={{ flexDirection: 'row', alignItems: 'center' }}
                     >
                         <TrashIcon fill={colors.text.error} />
