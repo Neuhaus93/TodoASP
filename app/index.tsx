@@ -90,7 +90,6 @@ export default function HomePage() {
                             </Svg>
                         }
                         onPress={() => {
-                            console.log('test');
                             setShowCompletedTasks(!showCompletedTasks);
                         }}
                     >

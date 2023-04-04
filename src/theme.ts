@@ -5,6 +5,7 @@ export const colors = {
         primary: '#202020',
         secondary: '#808080',
         disabled: '#E5E5E5',
+        error: '#D1453B',
     },
     background: '#FFFFFF',
     menus: '#3D3D3D',

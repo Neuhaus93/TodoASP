@@ -11,6 +11,7 @@ const getInitialState = (task: Task | null) => ({
     },
     showDatePicker: false,
     showPriorityPicker: false,
+    showDeleteConfirmation: false,
     editView: false,
     viewExpanded: false,
 });
@@ -24,6 +25,7 @@ type Action =
     | { type: 'TASK_UPDATED' }
     | { type: 'SET_SHOW_DATE_PICKER'; payload: boolean }
     | { type: 'SET_SHOW_PRIORITY_PICKER'; payload: boolean }
+    | { type: 'SET_SHOW_DELETE_CONFIRMATION'; payload: boolean }
     | { type: 'SET_EDIT_VIEW'; payload: boolean }
     | { type: 'EXPAND_VIEW' };
 
@@ -60,6 +62,10 @@ export const useViewTaskReducer = (task: Task | null) => {
 
                 case 'SET_SHOW_PRIORITY_PICKER':
                     draft.showPriorityPicker = action.payload;
+                    break;
+
+                case 'SET_SHOW_DELETE_CONFIRMATION':
+                    draft.showDeleteConfirmation = action.payload;
                     break;
 
                 case 'SET_EDIT_VIEW':

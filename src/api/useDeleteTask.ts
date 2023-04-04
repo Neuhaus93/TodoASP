@@ -1,19 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation } from '@tanstack/react-query';
-import { getCurrentTimestamp } from '../utils/dateTime';
 import { queryClient } from './queryClient';
 import type { Task, Tasks } from './types';
 
-type UpdateTaskArgs = Pick<Task, 'id'> &
-    Partial<
-        Pick<
-            Task,
-            'name' | 'description' | 'due_date' | 'priority' | 'completed'
-        >
-    >;
+type DeleteTaskArgs = Task['id'];
 
-const useUpdateTask = () => {
-    return useMutation<unknown, unknown, UpdateTaskArgs>({
+const useDeleteTask = () => {
+    return useMutation<unknown, unknown, DeleteTaskArgs>({
         mutationFn: async () => {
             // Since we are using onMutate to optimistically update the cache, which runs
             // BEFORE the mutation function itself, we don't need to add it again in this case
@@ -25,7 +18,7 @@ const useUpdateTask = () => {
                 console.log(e);
             }
         },
-        onMutate: async (updatedTask) => {
+        onMutate: async (id) => {
             // Cancel any outgoing refetches
             // (so they don't overwrite our optimistic update)
             await queryClient.cancelQueries({ queryKey: ['tasks'] });
@@ -37,25 +30,7 @@ const useUpdateTask = () => {
             queryClient.setQueryData<Tasks>(['tasks'], (old) => {
                 const arr = old ?? [];
 
-                return arr.map((task) => {
-                    if (task.id === updatedTask.id) {
-                        if (typeof updatedTask.completed === 'boolean') {
-                            // If completing a task, add the `completed_at` timestamp.
-                            // If unchecking it as completed, remove the timestamp
-                            return {
-                                ...task,
-                                ...updatedTask,
-                                completed_at: updatedTask.completed
-                                    ? getCurrentTimestamp()
-                                    : null,
-                            };
-                        }
-
-                        return { ...task, ...updatedTask };
-                    }
-
-                    return task;
-                });
+                return arr.filter((task) => task.id !== id);
             });
 
             // Return a context object with the snapshotted value
@@ -69,4 +44,4 @@ const useUpdateTask = () => {
     });
 };
 
-export { useUpdateTask };
+export { useDeleteTask };
