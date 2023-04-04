@@ -15,10 +15,14 @@ export type TaskItemProps = {
      * Action called when the task item is pressed
      */
     onPress?: (task: Task) => void;
+    /**
+     * Toggle the task as completed or not completed
+     */
+    onToggleComplete: (task: Task) => void;
 };
 
 const TaskItem: React.FC<TaskItemProps> = (props) => {
-    const { task, onPress } = props;
+    const { task, onPress, onToggleComplete } = props;
 
     return (
         <Pressable
@@ -30,11 +34,17 @@ const TaskItem: React.FC<TaskItemProps> = (props) => {
                     label={task.name}
                     checked={task.completed}
                     priority={task.priority}
+                    onCheck={() => onToggleComplete(task)}
                 />
                 {task.description && (
                     <MyText
                         numberOfLines={1}
-                        style={[styles.taskSubInfo, { fontSize: 12 }]}
+                        style={[
+                            styles.taskSubInfo,
+                            {
+                                fontSize: 12,
+                            },
+                        ]}
                     >
                         {task.description}
                     </MyText>

@@ -10,6 +10,7 @@ import {
 import Svg, { Path } from 'react-native-svg';
 import { Task, Tasks } from '../src/api/types';
 import { useTasks } from '../src/api/useTasks';
+import { useUpdateTask } from '../src/api/useUpdateTask';
 import { MyText, TaskItem } from '../src/components';
 import { CreateTaskModal } from '../src/components/CreateTaskModal';
 import { MoreVerticalIcon } from '../src/components/Icons';
@@ -28,11 +29,19 @@ export default function HomePage() {
     const [{ dialogs }, dispatch] = useInboxStateReducer();
 
     const { data: tasks } = useTasks();
+    const { mutate } = useUpdateTask();
 
     // Getst the viewing task given the ID and the task array
     const viewTask = useMemo(() => {
         return findTask(dialogs.viewTask.taskId, tasks);
     }, [tasks, dialogs.viewTask.taskId]);
+
+    const handleToggleTaskCompleted = (task: Task) => {
+        mutate({
+            id: task.id,
+            completed: !task.completed,
+        });
+    };
 
     const handlePlusButtonPress = () => {
         dispatch({ type: 'CREATE_TASK_OPEN' });
@@ -64,6 +73,7 @@ export default function HomePage() {
                                         payload: task.id,
                                     })
                                 }
+                                onToggleComplete={handleToggleTaskCompleted}
                             />
                         ))}
                     </>

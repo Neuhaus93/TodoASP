@@ -146,6 +146,25 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
         dispatch({ type: 'SET_PRIORITY', payload: newPriority });
     };
 
+    /**
+     * Toggles the task completed status
+     */
+    const handleUpdateCompleted = () => {
+        if (!task) {
+            return;
+        }
+
+        mutate({
+            id: task.id,
+            completed: !task.completed,
+        });
+
+        // If completing the task, close the modal
+        if (!task.completed) {
+            onClose();
+        }
+    };
+
     useEffect(() => {
         if (editView && !viewExpanded) {
             sharedHeight.value = withTiming(
@@ -220,10 +239,10 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
                             onSave: handleUpdateTask,
                         }}
                     />
-
                     <Checkbox
                         label={values.name}
                         value={values.name}
+                        onCheck={handleUpdateCompleted}
                         onChangeText={(payload) =>
                             dispatch({ type: 'SET_NAME', payload })
                         }
