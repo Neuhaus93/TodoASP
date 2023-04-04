@@ -228,6 +228,7 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
             >
                 <Animated.View>
                     <Header
+                        task={task}
                         editView={editView}
                         editHeaderProps={{
                             disableSave,

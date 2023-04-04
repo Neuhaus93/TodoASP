@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation } from '@tanstack/react-query';
+import { getCurrentTimestamp } from '../utils/dateTime';
 import { queryClient } from './queryClient';
 import type { Task, Tasks } from './types';
 
@@ -38,6 +39,18 @@ const useUpdateTask = () => {
 
                 return arr.map((task) => {
                     if (task.id === updatedTask.id) {
+                        if (typeof updatedTask.completed === 'boolean') {
+                            // If completing a task, add the `completed_at` timestamp.
+                            // If unchecking it as completed, remove the timestamp
+                            return {
+                                ...task,
+                                ...updatedTask,
+                                completed_at: updatedTask.completed
+                                    ? getCurrentTimestamp()
+                                    : null,
+                            };
+                        }
+
                         return { ...task, ...updatedTask };
                     }
 

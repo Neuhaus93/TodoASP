@@ -1,9 +1,20 @@
+import dayjs from 'dayjs';
+import { useState } from 'react';
 import { Pressable, View } from 'react-native';
+import { Task } from '../../api/types';
 import { colors, spacing } from '../../theme';
-import { ArrowBackIcon, InboxIcon, MoreVerticalIcon } from '../Icons';
+import { BackdropModal } from '../Backdrop';
+import { Divider } from '../Divider';
+import {
+    ArrowBackIcon,
+    InboxIcon,
+    MoreVerticalIcon,
+    TrashIcon,
+} from '../Icons';
 import { MyText } from '../MyText';
 
 type HeaderProps = {
+    task: Task;
     editView: boolean;
     editHeaderProps: {
         onBack: () => void;
@@ -25,13 +36,26 @@ const Header: React.FC<HeaderProps> = (props) => {
             {props.editView ? (
                 <EditHeader {...props.editHeaderProps} />
             ) : (
-                <ViewHeader />
+                <ViewHeader task={props.task} />
             )}
         </View>
     );
 };
 
-const ViewHeader = () => {
+const ViewHeader = ({ task }: Pick<HeaderProps, 'task'>) => {
+    const [visible, setVisible] = useState(false);
+    const note = (() => {
+        const format = (timestamp: number) => {
+            return dayjs.unix(timestamp).format('MMM D h:mmA');
+        };
+
+        if (task.completed && task.completed_at) {
+            return `Completed on ${format(task.completed_at)}`;
+        }
+
+        return `Added on ${format(task.created_at)}`;
+    })();
+
     return (
         <>
             <View
@@ -50,7 +74,30 @@ const ViewHeader = () => {
                 </MyText>
             </View>
 
-            <MoreVerticalIcon width="20" height="20" />
+            <Pressable onPress={() => setVisible(true)}>
+                <MoreVerticalIcon width="20" height="20" />
+            </Pressable>
+
+            <BackdropModal
+                visible={visible}
+                onRequestClose={() => setVisible(false)}
+            >
+                <View style={{ marginVertical: spacing(2) }}>
+                    <MyText color="secondary">{note}</MyText>
+                    <Divider marginVertical={spacing(4)} />
+                    <Pressable
+                        style={{ flexDirection: 'row', alignItems: 'center' }}
+                    >
+                        <TrashIcon fill={colors.text.error} />
+                        <MyText
+                            color="error"
+                            style={{ marginLeft: spacing(3), fontSize: 16 }}
+                        >
+                            Delete Task
+                        </MyText>
+                    </Pressable>
+                </View>
+            </BackdropModal>
         </>
     );
 };
