@@ -24,10 +24,6 @@ const footerSideSectionWidth =
 const footerHeight = footerMidSectionWidth;
 const addBtnRadius = footerMidSectionWidth / 2 - 2;
 
-// const preferences = {
-//     showCompletedTasks: false,
-// };
-
 export default function HomePage() {
     const [{ dialogs }, dispatch] = useInboxStateReducer();
     const [showCompletedTasks, setShowCompletedTasks] = useState(false);
@@ -35,6 +31,7 @@ export default function HomePage() {
     const { data: tasksData } = useTasks();
     const { mutate } = useUpdateTask();
 
+    // Filtered and sorted tasks
     const tasks = useMemo(() => {
         if (!Array.isArray(tasksData)) {
             return [];
