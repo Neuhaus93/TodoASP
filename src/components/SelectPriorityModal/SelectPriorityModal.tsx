@@ -36,9 +36,9 @@ export const SelectPriorityModal: React.FC<SelectPriorityModalProps> = (
         <BackdropModal visible={visible} onRequestClose={onRequestClose}>
             <View style={{ marginVertical: spacing(3) }}>
                 <MyText
+                    fontWeight="bold"
                     style={{
                         fontSize: 18,
-                        fontWeight: 'bold',
                         marginBottom: spacing(3),
                     }}
                 >
