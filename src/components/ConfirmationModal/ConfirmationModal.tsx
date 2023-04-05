@@ -25,18 +25,20 @@ export const ConfirmationModal = (props: ConfirmationModalProps) => {
             onRequestClose={onDismiss}
             position="center"
         >
-            <MyText style={styles.title}>{title}</MyText>
+            <MyText fontWeight="bold" style={styles.title}>
+                {title}
+            </MyText>
             <MyText>{description}</MyText>
 
             <View style={styles.buttonsContainer}>
                 <Pressable onPress={onDismiss}>
-                    <MyText style={styles.buttonText}>NO</MyText>
+                    <MyText fontWeight="bold">NO</MyText>
                 </Pressable>
                 <Pressable
                     onPress={onConfirm}
                     style={{ marginLeft: spacing(10) }}
                 >
-                    <MyText style={styles.buttonText}>YES</MyText>
+                    <MyText fontWeight="bold">YES</MyText>
                 </Pressable>
             </View>
         </BackdropModal>
@@ -45,7 +47,6 @@ export const ConfirmationModal = (props: ConfirmationModalProps) => {
 
 const styles = StyleSheet.create({
     title: {
-        fontWeight: 'bold',
         marginBottom: spacing(3),
     },
     buttonsContainer: {
@@ -54,8 +55,5 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         flexDirection: 'row',
         alignItems: 'center',
-    },
-    buttonText: {
-        fontWeight: 'bold',
     },
 });

@@ -13,6 +13,7 @@ import { useTasks } from '../src/api/useTasks';
 import { useUpdateTask } from '../src/api/useUpdateTask';
 import { Menu, MyText, TaskItem } from '../src/components';
 import { CreateTaskModal } from '../src/components/CreateTaskModal';
+import { EmptyState } from '../src/components/EmptyState';
 import { ViewTaskModal } from '../src/components/ViewTaskModal';
 import { useInboxStateReducer } from '../src/hooks/reducers/useInboxStateReducer';
 import { colors, spacing } from '../src/theme';
@@ -97,26 +98,26 @@ export default function HomePage() {
                     </Menu.MenuItem>
                 </Menu>
             </View>
-            <ScrollView style={styles.main}>
-                <ClearCache />
-                {Array.isArray(tasks) && (
-                    <>
-                        {tasks.map((task) => (
-                            <TaskItem
-                                key={task.id}
-                                task={task}
-                                onPress={(task) =>
-                                    dispatch({
-                                        type: 'VIEW_TASK_OPEN',
-                                        payload: task.id,
-                                    })
-                                }
-                                onToggleComplete={handleToggleTaskCompleted}
-                            />
-                        ))}
-                    </>
-                )}
-            </ScrollView>
+            {tasks.length === 0 ? (
+                <EmptyState />
+            ) : (
+                <ScrollView style={styles.main}>
+                    <ClearCache />
+                    {tasks.map((task) => (
+                        <TaskItem
+                            key={task.id}
+                            task={task}
+                            onPress={(task) =>
+                                dispatch({
+                                    type: 'VIEW_TASK_OPEN',
+                                    payload: task.id,
+                                })
+                            }
+                            onToggleComplete={handleToggleTaskCompleted}
+                        />
+                    ))}
+                </ScrollView>
+            )}
             <View style={styles.footer}>
                 <View
                     style={[
