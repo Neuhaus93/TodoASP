@@ -3,23 +3,26 @@
 This is a React Native project that is a clone of the popular to-do list app Todoist. The app allows users to create, edit, and delete tasks, as well as mark them as complete or incomplete.
 
 
-https://user-images.githubusercontent.com/38574361/229187447-dc776b23-ef44-4ee1-92f7-79479e8ebdcb.mp4
-
-
 ## Goals
 
 This project is meant for studying and practicing mobile development. It will be improved in small steps.
 
 ## Milestones
 
--   [ ] Base Inbox page
+-   [x] Base Inbox page [ Apr 4, 2023 ]
 
     -   [x] Create task, with name, due date, description, and priority values
     -   [x] View & Edit tasks
     -   [x] Check tasks completed and uncompleted
-    -   [ ] Be able to toggle between seeing completed tasks and not seeing
-    -   [ ] Delete task
+    -   [x] Be able to toggle between seeing completed tasks and not seeing
+    -   [x] Delete task
     -   [x] At this point, all data should be persisted locally with AsyncStorage
+    
+<div align="center">
+<video src="https://user-images.githubusercontent.com/38574361/229954226-82c843b8-a2cb-42ce-866e-896d9209ab99.mp4" />
+</div>
+
+    
 
 -   [ ] Today page
 
