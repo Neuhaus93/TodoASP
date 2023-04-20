@@ -103,7 +103,14 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
             return null;
         }
 
+        // Delete the task
         deleteTask(task.id);
+
+        // Close confirmation dialog
+        dispatch({
+            type: 'SET_SHOW_DELETE_CONFIRMATION',
+            payload: false,
+        });
 
         // Close the view modal
         onClose();
@@ -136,8 +143,8 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
 
         updateTask({
             id: task.id,
-            name: values.name.trim(),
-            description: values.description.trim() || null,
+            name: values.draftName.trim(),
+            description: values.draftDescription.trim() || null,
         });
 
         // Trim state values and go back to view modal
@@ -165,17 +172,22 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
      * Toggles the task completed status
      */
     const handleUpdateCompleted = () => {
+        const newValue = !values.completed;
+
         if (!task) {
             return;
         }
 
         updateTask({
             id: task.id,
-            completed: !task.completed,
+            completed: newValue,
         });
 
+        // Saves the new completed value
+        dispatch({ type: 'SET_COMPLETED', payload: newValue });
+
         // If completing the task, close the modal
-        if (!task.completed) {
+        if (newValue) {
             onClose();
         }
     };
@@ -262,14 +274,14 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
                         }}
                     />
                     <Checkbox
-                        label={values.name}
-                        value={values.name}
+                        label={values.draftName}
+                        value={values.draftName}
                         onCheck={handleUpdateCompleted}
                         onChangeText={(payload) =>
-                            dispatch({ type: 'SET_NAME', payload })
+                            dispatch({ type: 'SET_DRAFT_NAME', payload })
                         }
-                        priority={task.priority}
-                        checked={task.completed}
+                        priority={values.priority}
+                        checked={values.completed}
                         editable
                         onInputFocus={() =>
                             dispatch({
@@ -279,7 +291,7 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
                         }
                     />
 
-                    {(editView || task?.description) && (
+                    {(editView || !!values.description) && (
                         <View
                             style={{
                                 marginTop: spacing(3.5),
@@ -292,10 +304,10 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
                             />
                             <TextInput
                                 multiline
-                                value={values.description}
+                                value={values.draftDescription}
                                 onChangeText={(payload) =>
                                     dispatch({
-                                        type: 'SET_DESCRIPTION',
+                                        type: 'SET_DRAFT_DESCRIPTION',
                                         payload,
                                     })
                                 }
@@ -418,7 +430,7 @@ const ViewTaskModal: React.FC<ViewTaskModalProps> = (props) => {
             <ConfirmationModal
                 visible={showDeleteConfirmation}
                 title="Delete task?"
-                description={`This will permanently delete "${task.name}" and can't be undone.`}
+                description={`This will permanently delete "${values.name}" and can't be undone.`}
                 onDismiss={() =>
                     dispatch({
                         type: 'SET_SHOW_DELETE_CONFIRMATION',
