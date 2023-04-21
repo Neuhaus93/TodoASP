@@ -1,11 +1,5 @@
 import { Slot, usePathname } from 'expo-router';
-import {
-    Dimensions,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    View,
-} from 'react-native';
+import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Menu, MyText } from '../../src/components';
 import { CreateTaskModal } from '../../src/components/CreateTaskModal';
@@ -54,18 +48,7 @@ export default function Tasks() {
 
                 <Menu>
                     <Menu.MenuItem
-                        Icon={
-                            <Svg
-                                width="19"
-                                height="19"
-                                viewBox="0 0 416 416"
-                                strokeWidth="38"
-                                stroke={colors.icon}
-                            >
-                                <Path d="M 400,208 C 400,102 314,16 208,16 102,16 16,102 16,208 c 0,106 86,192 192,192 106,0 192,-86 192,-192 z" />
-                                <Path d="M 304,128 169.6,288 112,224" />
-                            </Svg>
-                        }
+                        Icon={<CheckmarkIcon />}
                         onPress={() => {
                             setShowCompleted(!showCompletedTasks);
                         }}
@@ -75,9 +58,7 @@ export default function Tasks() {
                 </Menu>
             </View>
 
-            <ScrollView style={styles.main}>
-                <Slot />
-            </ScrollView>
+            <Slot />
 
             <View style={styles.footer}>
                 <View
@@ -176,7 +157,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-    main: { flex: 1 },
     footer: {
         flexDirection: 'row',
         height: footerHeight,
@@ -207,3 +187,16 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
 });
+
+const CheckmarkIcon = () => (
+    <Svg
+        width="19"
+        height="19"
+        viewBox="0 0 416 416"
+        strokeWidth="38"
+        stroke={colors.icon}
+    >
+        <Path d="M 400,208 C 400,102 314,16 208,16 102,16 16,102 16,208 c 0,106 86,192 192,192 106,0 192,-86 192,-192 z" />
+        <Path d="M 304,128 169.6,288 112,224" />
+    </Svg>
+);

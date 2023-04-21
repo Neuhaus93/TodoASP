@@ -70,7 +70,7 @@ const useDeleteTask = () => {
         mutationFn: async () => {
             // Since we are using onMutate to optimistically update the cache, which runs
             // BEFORE the mutation function itself, we don't need to add it again in this case
-            const tasks = queryClient.getQueryData<Tasks>(['tasks']);
+            const tasks = queryClient.getQueryData<Tasks>(taskKeys.list());
 
             try {
                 await AsyncStorage.setItem('@all_tasks', JSON.stringify(tasks));
@@ -81,13 +81,15 @@ const useDeleteTask = () => {
         onMutate: async (id) => {
             // Cancel any outgoing refetches
             // (so they don't overwrite our optimistic update)
-            await queryClient.cancelQueries({ queryKey: ['tasks'] });
+            await queryClient.cancelQueries({ queryKey: taskKeys.list() });
 
             // Snapshot the previous value
-            const previousTasks = queryClient.getQueryData<Tasks>(['tasks']);
+            const previousTasks = queryClient.getQueryData<Tasks>(
+                taskKeys.list()
+            );
 
             // Optimistically update to the new value
-            queryClient.setQueryData<Tasks>(['tasks'], (old) => {
+            queryClient.setQueryData<Tasks>(taskKeys.list(), (old) => {
                 const arr = old ?? [];
 
                 return arr.filter((task) => task.id !== id);
@@ -99,7 +101,7 @@ const useDeleteTask = () => {
         // If the mutation fails,
         // use the context returned from onMutate to roll back
         onError: (err, newTodo, context: any) => {
-            queryClient.setQueryData(['tasks'], context?.previousTasks);
+            queryClient.setQueryData(taskKeys.list(), context?.previousTasks);
         },
     });
 };
@@ -117,7 +119,7 @@ const useUpdateTask = () => {
         mutationFn: async () => {
             // Since we are using onMutate to optimistically update the cache, which runs
             // BEFORE the mutation function itself, we don't need to add it again in this case
-            const tasks = queryClient.getQueryData<Tasks>(['tasks']);
+            const tasks = queryClient.getQueryData<Tasks>(taskKeys.list());
 
             try {
                 await AsyncStorage.setItem('@all_tasks', JSON.stringify(tasks));
@@ -128,13 +130,15 @@ const useUpdateTask = () => {
         onMutate: async (updatedTask) => {
             // Cancel any outgoing refetches
             // (so they don't overwrite our optimistic update)
-            await queryClient.cancelQueries({ queryKey: ['tasks'] });
+            await queryClient.cancelQueries({ queryKey: taskKeys.list() });
 
             // Snapshot the previous value
-            const previousTasks = queryClient.getQueryData<Tasks>(['tasks']);
+            const previousTasks = queryClient.getQueryData<Tasks>(
+                taskKeys.list()
+            );
 
             // Optimistically update to the new value
-            queryClient.setQueryData<Tasks>(['tasks'], (old) => {
+            queryClient.setQueryData<Tasks>(taskKeys.list(), (old) => {
                 const arr = old ?? [];
 
                 return arr.map((task) => {
@@ -164,7 +168,7 @@ const useUpdateTask = () => {
         // If the mutation fails,
         // use the context returned from onMutate to roll back
         onError: (err, newTodo, context: any) => {
-            queryClient.setQueryData(['tasks'], context?.previousTasks);
+            queryClient.setQueryData(taskKeys.list(), context?.previousTasks);
         },
     });
 };
