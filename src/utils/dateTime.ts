@@ -10,7 +10,9 @@ import { colors } from '../theme';
 export const getTimestampInfo = (
     unixTimestamp: number | null
 ): { label: string; color: string } => {
-    if (!unixTimestamp) {
+    const dayDiff = getTimestampDayDiffFromToday(unixTimestamp);
+
+    if (!unixTimestamp || dayDiff === null) {
         return { label: 'Due Date', color: colors.date.future };
     }
 
@@ -21,8 +23,6 @@ export const getTimestampInfo = (
     if (!dayjsObj.isSame(dayjs(), 'year')) {
         dayFormat += ' YYYY';
     }
-
-    const dayDiff = dayjsObj.startOf('day').diff(dayjs().startOf('day'), 'day');
 
     switch (dayDiff) {
         case -1:
@@ -55,6 +55,22 @@ export const getTimestampInfo = (
             return { label, color: colors.date.future };
         }
     }
+};
+
+/**
+ * Get the diff in days from a provided unix timestamp from today
+ * @param unixTimestamp
+ * @returns
+ */
+export const getTimestampDayDiffFromToday = (unixTimestamp: number | null) => {
+    if (!unixTimestamp) {
+        return null;
+    }
+
+    return dayjs
+        .unix(unixTimestamp)
+        .startOf('day')
+        .diff(dayjs().startOf('day'), 'day');
 };
 
 /**

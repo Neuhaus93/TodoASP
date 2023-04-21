@@ -10,7 +10,7 @@ import {
     View,
 } from 'react-native';
 import { Task } from '../../api/types';
-import { useCreateTask } from '../../api/useCreateTask';
+import { useCreateTask } from '../../features/Tasks/mutations';
 import { colors, spacing } from '../../theme';
 import { getDateTimestamp } from '../../utils/dateTime';
 import { getPriorityInfo } from '../../utils/priority';
