@@ -1,4 +1,5 @@
 import ArrowBackIcon from './ArrowBackIcon';
+import ArrowDownwardIcon from './ArrowDownwardIcon';
 import CalendarIcon from './CalendarIcon';
 import CheckmarkIcon from './CheckmarkIcon';
 import DescriptionIcon from './DescriptionIcon';
@@ -12,6 +13,7 @@ import TrashIcon from './TrashIcon';
 
 export {
     ArrowBackIcon,
+    ArrowDownwardIcon,
     CalendarIcon,
     CheckmarkIcon,
     DescriptionIcon,

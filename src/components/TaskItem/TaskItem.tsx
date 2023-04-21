@@ -12,6 +12,10 @@ export type TaskItemProps = {
      */
     task: Task;
     /**
+     * Don't display the tasks' due date
+     */
+    hideDate?: boolean;
+    /**
      * Action called when the task item is pressed
      */
     onPress?: (task: Task) => void;
@@ -22,7 +26,7 @@ export type TaskItemProps = {
 };
 
 const TaskItem: React.FC<TaskItemProps> = (props) => {
-    const { task, onPress, onToggleComplete } = props;
+    const { task, hideDate, onPress, onToggleComplete } = props;
 
     return (
         <Pressable
@@ -49,9 +53,11 @@ const TaskItem: React.FC<TaskItemProps> = (props) => {
                         {task.description}
                     </MyText>
                 )}
-                <View style={styles.taskSubInfo}>
-                    <TaskDueDate hideIfNoDueDate dueDate={task.due_date} />
-                </View>
+                {!!task.due_date && !hideDate && (
+                    <View style={styles.taskSubInfo}>
+                        <TaskDueDate hideIfNoDueDate dueDate={task.due_date} />
+                    </View>
+                )}
             </View>
             <Divider />
         </Pressable>

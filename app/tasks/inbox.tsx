@@ -1,11 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useMemo } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, ScrollView } from 'react-native';
 import { Task } from '../../src/api/types';
-import { useTasks } from '../../src/api/useTasks';
-import { useUpdateTask } from '../../src/api/useUpdateTask';
 import { MyText, TaskItem } from '../../src/components';
 import { EmptyState } from '../../src/components/EmptyState';
+import { useUpdateTask } from '../../src/features/Tasks/mutations';
+import { useTasks } from '../../src/features/Tasks/queries';
 import { useStore } from '../../src/store';
 import { spacing } from '../../src/theme';
 
@@ -57,7 +57,7 @@ export default function InboxPage() {
     }
 
     return (
-        <View style={{ paddingLeft: spacing(5) }}>
+        <ScrollView style={{ paddingLeft: spacing(5) }}>
             <ClearCache />
             {tasks.map((task) => (
                 <TaskItem
@@ -67,7 +67,7 @@ export default function InboxPage() {
                     onToggleComplete={handleToggleTaskCompleted}
                 />
             ))}
-        </View>
+        </ScrollView>
     );
 }
 

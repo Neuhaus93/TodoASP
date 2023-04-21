@@ -17,8 +17,7 @@ import Animated, {
     withTiming,
 } from 'react-native-reanimated';
 import { Task } from '../../api/types';
-import { useDeleteTask } from '../../api/useDeleteTask';
-import { useUpdateTask } from '../../api/useUpdateTask';
+import { useDeleteTask, useUpdateTask } from '../../features/Tasks/mutations';
 import { spacing } from '../../theme';
 import { getDateTimestamp } from '../../utils/dateTime';
 import { getPriorityInfo } from '../../utils/priority';
