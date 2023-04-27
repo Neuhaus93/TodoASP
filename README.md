@@ -1,4 +1,4 @@
-# React Native Todoist Clone
+# TodoASP - React Native
 
 This is a React Native project that is a clone of the popular to-do list app Todoist. The app allows users to create, edit, and delete tasks, as well as mark them as complete or incomplete.
 
@@ -17,14 +17,20 @@ This project is meant for studying and practicing mobile development. It will be
     -   [x] Be able to toggle between seeing completed tasks and not seeing
     -   [x] Delete task
     -   [x] At this point, all data should be persisted locally with AsyncStorage
+
+
+-   [x] Today page [ Apr 24, 2023 ]
+
+    -   [x] Add routing the the application, make sure it supports Inbox and Today pages
+    -   [x] Today page should show only overdue tasks and tasks due today. Separated between sections
+    
     
 <div align="center">
-<video src="https://user-images.githubusercontent.com/38574361/229954226-82c843b8-a2cb-42ce-866e-896d9209ab99.mp4" />
+<video src="https://user-images.githubusercontent.com/38574361/234885730-47baf1b6-192f-458b-8a20-da2bab18f497.mp4" />
 </div>
 
-    
 
--   [ ] Today page
+-   [ ] Improve the date picker
 
 -   [ ] Add a dark theme
 
@@ -35,13 +41,13 @@ This project is meant for studying and practicing mobile development. It will be
 To get started with the project, clone this repository to your local machine:
 
 ```bash
-git clone https://github.com/Neuhaus93/Todoist-Clone.git
+git clone https://github.com/Neuhaus93/TodoASP.git
 ```
 
 Then, navigate to the project directory and install the necessary dependencies:
 
 ```bash
-cd Todoist-Clone
+cd TodoASP
 npm install
 ```
 
